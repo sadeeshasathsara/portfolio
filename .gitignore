@@ -1,0 +1,49 @@
+# Node modules (both backend and frontend)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+client/build/
+server/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+client/.env
+server/.env
+
+# OS/Editor junk
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Dependency lock files (optional: choose one depending on package manager)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Coverage reports
+coverage/
+client/coverage/
+server/coverage/
+
+# Optional: if using Next.js for frontend
+.next/
+
+# Optional: if using TypeScript
+*.tsbuildinfo
+
+# Optional: logs or temp data
+tmp/
+temp/
