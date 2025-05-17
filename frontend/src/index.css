@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800&display=swap');
+@import "tailwindcss";
+
+
+@theme {
+    --color-main-bg: #212228;
+    --color-secondary-bg: #2d2e36;
+    --color-main-text: #ffffff;
+    --color-secondary-text: #a39db2;
+    --color-highlight: #80db66;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: #212228;
+    background: linear-gradient(89deg, rgba(24, 25, 29, 1) 0%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 1) 100%);
+    color: #ffffff;
+}
+
+* {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.m-plus-thin {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.m-plus-light {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.m-plus-regular {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.m-medium {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.m-plus-bold {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.m-plus-extrabold {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+}
