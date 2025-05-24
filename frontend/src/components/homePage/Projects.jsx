@@ -7,6 +7,20 @@ function Projects() {
     const [projects, setProjects] = useState([]);
     const [visibleProjects, setVisibleProjects] = useState([]);
     const [animateCards, setAnimateCards] = useState(false);
+    const [activeCard, setActiveCard] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Detect if device is mobile/touch
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     // Sample project data
     useEffect(() => {
@@ -124,6 +138,25 @@ function Projects() {
         setFilter(newFilter);
     };
 
+    // Handle card click for mobile
+    const handleCardClick = (projectId) => {
+        if (isMobile) {
+            setActiveCard(activeCard === projectId ? null : projectId);
+        }
+    };
+
+    // Close active card when clicking outside
+    useEffect(() => {
+        const handleClickOutside = () => {
+            if (isMobile && activeCard) {
+                setActiveCard(null);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [isMobile, activeCard]);
+
     return (
         <section id="projects" className="relative py-20 overflow-hidden">
             {/* Background elements */}
@@ -173,20 +206,35 @@ function Projects() {
                                 className="group bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/30 overflow-hidden hover:border-green-500/50 transition-all duration-300 flex flex-col"
                             >
                                 {/* Project image */}
-                                <div className="relative overflow-hidden">
+                                <div
+                                    className="relative overflow-hidden cursor-pointer"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCardClick(project.id);
+                                    }}
+                                >
                                     <img
                                         src={project.image}
                                         alt={project.title}
                                         className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center">
-                                        <div className="p-4 w-full flex justify-center gap-4 translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
+                                    <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 flex items-end justify-center
+                                        ${isMobile
+                                            ? (activeCard === project.id ? 'opacity-100' : 'opacity-0')
+                                            : 'opacity-0 group-hover:opacity-100'
+                                        }`}>
+                                        <div className={`p-4 w-full flex justify-center gap-4 transition-transform duration-300
+                                            ${isMobile
+                                                ? (activeCard === project.id ? 'translate-y-0' : 'translate-y-10')
+                                                : 'translate-y-10 group-hover:translate-y-0'
+                                            }`}>
                                             {project.liveUrl && (
                                                 <a
                                                     href={project.liveUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="bg-green-500 hover:bg-green-600 text-black font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                                    onClick={(e) => e.stopPropagation()}
                                                 >
                                                     <Eye size={18} />
                                                 </a>
@@ -197,6 +245,7 @@ function Projects() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="bg-gray-800 hover:bg-gray-700 text-white font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                                    onClick={(e) => e.stopPropagation()}
                                                 >
                                                     <Github size={18} />
                                                 </a>
