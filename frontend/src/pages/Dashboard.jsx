@@ -22,6 +22,11 @@ import DashTab from '../components/dashboardPage/DashTab';
 import ActivitiesTab from '../components/dashboardPage/Activities';
 import Messages from '../components/dashboardPage/Messages';
 import SettingsTab from '../components/dashboardPage/Settings';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { BACKEND_URL } from '../tools/Tools';
 
 function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -92,8 +97,32 @@ function AdminDashboard() {
 
     const currentTab = tabs.find(tab => tab.id === activeTab);
 
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        // Show loading toast and get its id
+        const toastId = toast.loading("Logging out...");
+
+        try {
+            const res = await axios.post(`${BACKEND_URL}/api/logout`, {}, {
+                withCredentials: true,
+            });
+
+            if (res.status === 200) {
+                toast.success("Logout successful", { id: toastId }); // replace loading with success
+                navigate('/login', { replace: true });
+            } else {
+                toast.error("Logout failed", { id: toastId }); // replace loading with error
+            }
+        } catch (error) {
+            console.error("Logout failed:", error);
+            toast.error(error.message || "Logout failed", { id: toastId }); // replace loading with error
+        }
+    };
+
     return (
         <div className="flex overflow-hidden">
+            <ToastContainer />
             {/* Custom Scrollbar Styles */}
             <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
@@ -249,9 +278,9 @@ function AdminDashboard() {
                                             Account
                                         </a>
                                         <hr className="my-2 border-gray-700" />
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                                        <button onClick={handleLogout} className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                                             Sign Out
-                                        </a>
+                                        </button>
                                     </div>
                                 )}
                             </div>

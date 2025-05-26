@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield, CheckCircle } from 'lucide-react';
+import axios from 'axios'
+import { BACKEND_URL } from '../tools/Tools';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { delay } from 'framer-motion';
 
 const Login = () => {
-    const [currentView, setCurrentView] = useState('login'); // 'login', 'forgot', 'otp', 'success'
+    const [currentView, setCurrentView] = useState('login');
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -10,6 +16,7 @@ const Login = () => {
         otp: ['', '', '', '', '', '']
     });
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate()
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
@@ -27,7 +34,6 @@ const Login = () => {
                 otp: newOtp
             }));
 
-            // Auto-focus next input
             if (value && index < 5) {
                 const nextInput = document.getElementById(`otp-${index + 1}`);
                 if (nextInput) nextInput.focus();
@@ -39,11 +45,20 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
         if (currentView === 'login') {
-            console.log('Login submitted:', { email: formData.email, password: formData.password });
+            try {
+                const res = await axios.post(`${BACKEND_URL}/api/login`, {
+                    email: formData.email,
+                    password: formData.password
+                }, { withCredentials: true });
+                toast.success('Login successful');
+                if (res.status == 200) {
+                    navigate("/admin")
+                }
+            } catch (e) {
+                console.log(e);
+                toast.error(e?.response?.data?.message || e.message || "Login failed");
+            }
         } else if (currentView === 'forgot') {
             console.log('Forgot password submitted:', { email: formData.email });
             setCurrentView('otp');
@@ -57,7 +72,6 @@ const Login = () => {
 
     const handleGoogleSignIn = () => {
         console.log('Google Sign-in clicked');
-        // In a real app, integrate with Google OAuth
     };
 
     const resetToLogin = () => {
@@ -71,10 +85,9 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[#151e2c] to-slate-900 flex items-center justify-center p-4">
+            <ToastContainer />
             <div className="w-full max-w-md">
-                {/* Main Card */}
                 <div className="bg-[#131c2b] rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden">
-                    {/* Header */}
                     <div className="px-8 pt-8 pb-6 text-center relative">
                         {currentView !== 'login' && (
                             <button
@@ -84,7 +97,6 @@ const Login = () => {
                                 <ArrowLeft size={20} />
                             </button>
                         )}
-
                         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
                             {currentView === 'success' ? (
                                 <CheckCircle size={32} className="text-white" />
@@ -94,14 +106,12 @@ const Login = () => {
                                 <Lock size={32} className="text-white" />
                             )}
                         </div>
-
                         <h1 className="text-2xl font-bold text-white mb-2">
                             {currentView === 'login' && 'Welcome Back'}
                             {currentView === 'forgot' && 'Forgot Password'}
                             {currentView === 'otp' && 'Verify Email'}
                             {currentView === 'success' && 'Password Reset'}
                         </h1>
-
                         <p className="text-slate-400 text-sm">
                             {currentView === 'login' && 'Sign in to your account to continue'}
                             {currentView === 'forgot' && 'Enter your email to receive a reset code'}
@@ -110,11 +120,9 @@ const Login = () => {
                         </p>
                     </div>
 
-                    {/* Form Content */}
                     <div className="px-8 pb-8">
-                        {/* Login Form */}
                         {currentView === 'login' && (
-                            <div className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label className="block text-slate-300 text-sm font-medium mb-2">
                                         Email Address
@@ -210,7 +218,7 @@ const Login = () => {
                                     </svg>
                                     <span>Continue with Google</span>
                                 </button>
-                            </div>
+                            </form>
                         )}
 
                         {/* Forgot Password Form */}

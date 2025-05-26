@@ -8,13 +8,20 @@ import Home from './pages/Home'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import AdminDashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import { ProtectedRoute } from './tools/Tools'
 
 
 function App() {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='/admin' element={<AdminDashboard />} />
+
+      <Route path='/admin' element={
+        <ProtectedRoute>
+          <AdminDashboard />
+        </ProtectedRoute>
+      } />
+
       <Route path='/login' element={<Login />} />
     </Routes>
   )

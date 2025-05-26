@@ -1,27 +1,29 @@
 import Admin from "../../models/Admin.js";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-export const LoginWithUsn = async (req, res) => {
-    const { username, password } = req.body;
-
+export const LoginWithEmail = async (req, res) => {
     try {
-        const admin = await Admin.findOne({ username });
+        const { email, password } = req.body;
+        const admin = await Admin.findOne({ email });
 
         if (!admin) {
             return res.status(401).json({ message: "Admin not found" });
         }
 
-        if (admin.password !== password) {
-            return res.status(402).json({ message: "Invalid password" });
+        const isPasswordValid = await bcrypt.compare(password, admin.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid password" });
         }
 
         // Create JWT token
         const token = jwt.sign(
             { id: admin._id, role: "admin" },
-            process.env.JWT_SECRET || "your_jwt_secret",
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
@@ -30,14 +32,13 @@ export const LoginWithUsn = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 24 * 60 * 60 * 1000,
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
-        return res.status(200).json({ message: "Login successful" });
+        return res.status(200).json({ message: "Log in successfull" });
 
     } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: `Internal Server Error. ${error.message}` });
     }
 };
 
@@ -64,7 +65,7 @@ export const loginWithGoogle = async (req, res) => {
         // Generate JWT
         const token = jwt.sign(
             { id: admin._id, email: admin.email, role: "admin" },
-            process.env.JWT_SECRET || "your_jwt_secret",
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
@@ -82,3 +83,31 @@ export const loginWithGoogle = async (req, res) => {
         res.status(500).json({ message: "Google login failed" });
     }
 };
+
+export const createAccount = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const profilePicture = req.file;
+
+        if (!email || !password)
+            return res.status(400).json({ message: "Missing required field" });
+
+        const admin = await Admin.findOne({ email });
+        if (admin) return res.status(409).json({ message: "Email is already registered" });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newAdmin = new Admin({
+            email,
+            password: hashedPassword,
+            profilePicture: profilePicture.filename
+        });
+
+        await newAdmin.save();
+
+        return res.status(200).json({ message: "Successfully created the account" });
+    } catch (e) {
+        res.status(500).json({ message: `Internal Server Error. ${e.message}` });
+    }
+}

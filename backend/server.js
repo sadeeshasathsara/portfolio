@@ -2,9 +2,8 @@ import "dotenv/config"
 import express from "express"
 import mongoose from "mongoose"
 import cors from "cors"
-import cookieParser from "cookie-parser"
 import bodyParser from "body-parser"
-
+import cookieParser from 'cookie-parser';
 
 import ApiRoutes from "./routes/ApiRoutes.js"
 
@@ -20,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
 };
 app.use(cors(corsOptions))
@@ -28,6 +27,8 @@ app.use(cors(corsOptions))
 
 // API Routes
 app.use("/api", ApiRoutes)
+app.use('/up/image', express.static('src/profilePics'));
+app.use('/up/cv', express.static('src/CVs'));
 
 
 // MongoDB connection
@@ -40,7 +41,7 @@ if (!process.env.MONGODB_URI) {
             console.log("Connected to MongoDB")
 
             const port = process.env.PORT || 5000;
-            app.listen(port, () => {
+            app.listen(port, '0.0.0.0', () => {
                 console.log(`Server is running on port ${port}`)
             })
         })
