@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios'
 import { BACKEND_URL } from '../tools/Tools';
 import { ToastContainer, toast } from 'react-toastify';
@@ -10,13 +10,39 @@ import { delay } from 'framer-motion';
 const Login = () => {
     const [currentView, setCurrentView] = useState('login');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        confirmPassword: '',
         otp: ['', '', '', '', '', '']
     });
+    const [passwordErrors, setPasswordErrors] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
+
+    // Password validation function
+    const validatePassword = (password) => {
+        const errors = [];
+
+        if (password.length < 8) {
+            errors.push('At least 8 characters long');
+        }
+        if (!/[A-Z]/.test(password)) {
+            errors.push('At least one uppercase letter');
+        }
+        if (!/[a-z]/.test(password)) {
+            errors.push('At least one lowercase letter');
+        }
+        if (!/\d/.test(password)) {
+            errors.push('At least one number');
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            errors.push('At least one special character');
+        }
+
+        return errors;
+    };
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
@@ -41,6 +67,30 @@ const Login = () => {
         }
     };
 
+    const handlePasswordChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+
+        // Validate password in real-time for the changePassword view
+        if (field === 'password' && currentView === 'changePassword') {
+            const errors = validatePassword(value);
+            setPasswordErrors(errors);
+        }
+    };
+
+    const isPasswordValid = () => {
+        if (currentView !== 'changePassword') return true;
+
+        const passwordValidationErrors = validatePassword(formData.password);
+        const passwordsMatch = formData.password === formData.confirmPassword;
+        const hasPassword = formData.password.length > 0;
+        const hasConfirmPassword = formData.confirmPassword.length > 0;
+
+        return passwordValidationErrors.length === 0 && passwordsMatch && hasPassword && hasConfirmPassword;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -60,11 +110,57 @@ const Login = () => {
                 toast.error(e?.response?.data?.message || e.message || "Login failed");
             }
         } else if (currentView === 'forgot') {
-            console.log('Forgot password submitted:', { email: formData.email });
-            setCurrentView('otp');
+            try {
+                const res = await axios.post(`${BACKEND_URL}/api/forgot-password`, {
+                    email: formData.email
+                });
+                toast.success('Reset code sent to your email');
+                setCurrentView('otp');
+            } catch (e) {
+                console.log(e);
+                toast.error(e?.response?.data?.message || e.message || "Failed to send reset code");
+            }
+
         } else if (currentView === 'otp') {
             console.log('OTP submitted:', formData.otp.join(''));
-            setCurrentView('success');
+            try {
+                const res = await axios.post(`${BACKEND_URL}/api/validate-otp`, {
+                    otp: formData.otp.join(''),
+                    email: formData.email
+                });
+                toast.success('OTP verified successfully');
+                setCurrentView('changePassword');
+            } catch (e) {
+                console.log(e);
+                toast.error(e?.response?.data?.message || e.message || "OTP verification failed");
+            }
+
+        } else if (currentView === 'changePassword') {
+            // Validate passwords before submitting
+            const passwordValidationErrors = validatePassword(formData.password);
+            if (passwordValidationErrors.length > 0) {
+                toast.error("Please fix password validation errors");
+                setIsLoading(false);
+                return;
+            }
+
+            if (formData.password !== formData.confirmPassword) {
+                toast.error("Passwords do not match");
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const res = await axios.post(`${BACKEND_URL}/api/change-password`, {
+                    email: formData.email,
+                    password: formData.password,
+                });
+                toast.success("Password updated successfully");
+                setCurrentView('success');
+            } catch (e) {
+                toast.error("Password update failed");
+                console.log(e.message);
+            }
         }
 
         setIsLoading(false);
@@ -79,8 +175,10 @@ const Login = () => {
         setFormData({
             email: '',
             password: '',
+            confirmPassword: '',
             otp: ['', '', '', '', '', '']
         });
+        setPasswordErrors([]);
     };
 
     return (
@@ -110,13 +208,15 @@ const Login = () => {
                             {currentView === 'login' && 'Welcome Back'}
                             {currentView === 'forgot' && 'Forgot Password'}
                             {currentView === 'otp' && 'Verify Email'}
+                            {currentView === 'changePassword' && 'Create New Password'}
                             {currentView === 'success' && 'Password Reset'}
                         </h1>
                         <p className="text-slate-400 text-sm">
                             {currentView === 'login' && 'Sign in to your account to continue'}
                             {currentView === 'forgot' && 'Enter your email to receive a reset code'}
                             {currentView === 'otp' && `We sent a code to ${formData.email}`}
-                            {currentView === 'success' && 'Check your email for reset instructions'}
+                            {currentView === 'changePassword' && 'Enter a strong password for your account'}
+                            {currentView === 'success' && 'Your password has been successfully updated'}
                         </p>
                     </div>
 
@@ -175,7 +275,7 @@ const Login = () => {
                                     <button
                                         type="button"
                                         onClick={() => setCurrentView('forgot')}
-                                        className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+                                        className="text-purple-400 cursor-pointer hover:text-purple-300 text-sm font-medium transition-colors"
                                     >
                                         Forgot password?
                                     </button>
@@ -223,7 +323,7 @@ const Login = () => {
 
                         {/* Forgot Password Form */}
                         {currentView === 'forgot' && (
-                            <div className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label className="block text-slate-300 text-sm font-medium mb-2">
                                         Email Address
@@ -255,12 +355,12 @@ const Login = () => {
                                         'Send Reset Code'
                                     )}
                                 </button>
-                            </div>
+                            </form>
                         )}
 
                         {/* OTP Verification */}
                         {currentView === 'otp' && (
-                            <div className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label className="block text-slate-300 text-sm font-medium mb-4 text-center">
                                         Enter the 6-digit code
@@ -305,7 +405,127 @@ const Login = () => {
                                         Resend Code
                                     </button>
                                 </div>
-                            </div>
+                            </form>
+                        )}
+
+                        {/* Change Password Form with Validation */}
+                        {currentView === 'changePassword' && (
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div>
+                                    <label className="block text-slate-300 text-sm font-medium mb-2">
+                                        New Password
+                                    </label>
+                                    <div className="relative">
+                                        <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={formData.password}
+                                            onChange={(e) => handlePasswordChange('password', e.target.value)}
+                                            className={`w-full pl-12 pr-12 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${passwordErrors.length > 0 && formData.password
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-slate-600 focus:ring-purple-500'
+                                                }`}
+                                            placeholder="Enter your new password"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+
+                                    {/* Password Requirements */}
+                                    {formData.password && (
+                                        <div className="mt-3 space-y-2">
+                                            <p className="text-slate-300 text-sm font-medium">Password requirements:</p>
+                                            <div className="space-y-1">
+                                                {[
+                                                    { test: formData.password.length >= 8, text: 'At least 8 characters long' },
+                                                    { test: /[A-Z]/.test(formData.password), text: 'At least one uppercase letter' },
+                                                    { test: /[a-z]/.test(formData.password), text: 'At least one lowercase letter' },
+                                                    { test: /\d/.test(formData.password), text: 'At least one number' },
+                                                    { test: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password), text: 'At least one special character' }
+                                                ].map((req, index) => (
+                                                    <div key={index} className="flex items-center space-x-2">
+                                                        {req.test ? (
+                                                            <CheckCircle size={16} className="text-green-400" />
+                                                        ) : (
+                                                            <AlertCircle size={16} className="text-red-400" />
+                                                        )}
+                                                        <span className={`text-sm ${req.test ? 'text-green-400' : 'text-red-400'}`}>
+                                                            {req.text}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-slate-300 text-sm font-medium mb-2">
+                                        Confirm Password
+                                    </label>
+                                    <div className="relative">
+                                        <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                                            className={`w-full pl-12 pr-12 py-3 bg-slate-800/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${formData.confirmPassword && formData.password !== formData.confirmPassword
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : formData.confirmPassword && formData.password === formData.confirmPassword
+                                                    ? 'border-green-500 focus:ring-green-500'
+                                                    : 'border-slate-600 focus:ring-purple-500'
+                                                }`}
+                                            placeholder="Confirm your new password"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+
+                                    {/* Password Match Indicator */}
+                                    {formData.confirmPassword && (
+                                        <div className="mt-2 flex items-center space-x-2">
+                                            {formData.password === formData.confirmPassword ? (
+                                                <>
+                                                    <CheckCircle size={16} className="text-green-400" />
+                                                    <span className="text-sm text-green-400">Passwords match</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <AlertCircle size={16} className="text-red-400" />
+                                                    <span className="text-sm text-red-400">Passwords do not match</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || !isPasswordValid()}
+                                    className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Updating password...</span>
+                                        </div>
+                                    ) : (
+                                        'Update Password'
+                                    )}
+                                </button>
+                            </form>
                         )}
 
                         {/* Success State */}
@@ -313,10 +533,7 @@ const Login = () => {
                             <div className="text-center space-y-6">
                                 <div className="space-y-3">
                                     <p className="text-slate-300">
-                                        We've sent password reset instructions to your email address.
-                                    </p>
-                                    <p className="text-slate-400 text-sm">
-                                        Please check your inbox and follow the link to create a new password.
+                                        Your password has been successfully reset.
                                     </p>
                                 </div>
 

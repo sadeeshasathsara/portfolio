@@ -13,7 +13,8 @@ import {
     X,
     ChevronDown,
     User,
-    ActivityIcon
+    ActivityIcon,
+    Power
 } from 'lucide-react';
 import Profile from '../components/dashboardPage/Profile';
 import Projects from '../components/dashboardPage/Projects';
@@ -27,6 +28,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BACKEND_URL } from '../tools/Tools';
+import { delay } from 'framer-motion';
 
 function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -99,9 +101,11 @@ function AdminDashboard() {
 
     const navigate = useNavigate();
 
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
     const handleLogout = async () => {
-        // Show loading toast and get its id
         const toastId = toast.loading("Logging out...");
+        setIsLoggingOut(true);
 
         try {
             const res = await axios.post(`${BACKEND_URL}/api/logout`, {}, {
@@ -109,14 +113,16 @@ function AdminDashboard() {
             });
 
             if (res.status === 200) {
-                toast.success("Logout successful", { id: toastId }); // replace loading with success
+                toast.success("Logout successful", { id: toastId });
                 navigate('/login', { replace: true });
             } else {
-                toast.error("Logout failed", { id: toastId }); // replace loading with error
+                toast.error("Logout failed", { id: toastId });
+                setIsLoggingOut(false);
             }
         } catch (error) {
             console.error("Logout failed:", error);
-            toast.error(error.message || "Logout failed", { id: toastId }); // replace loading with error
+            toast.error(error.message || "Logout failed", { id: toastId });
+            setIsLoggingOut(false);
         }
     };
 
@@ -278,9 +284,15 @@ function AdminDashboard() {
                                             Account
                                         </a>
                                         <hr className="my-2 border-gray-700" />
-                                        <button onClick={handleLogout} className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                                            Sign Out
-                                        </button>
+                                        <div className='flex justify-center items-center'>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="flex items-center justify-evenly w-4/5 rounded-md  bg-red-600  px-4 py-2 text-sm text-white hover:bg-red-700 cursor-pointer hover:text-white transition-colors"
+                                                disabled={isLoggingOut}
+                                            >
+                                                <Power width={16} height={16} /> {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>

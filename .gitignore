@@ -47,3 +47,6 @@ server/coverage/
 # Optional: logs or temp data
 tmp/
 temp/
+
+#uploads
+src/

@@ -13,7 +13,7 @@ const adminSchema = new mongoose.Schema({
     googleId: {
         type: String,
         required: false,
-        unique: true,
+        default: ''
     },
     profilePicture: {
         type: String,
