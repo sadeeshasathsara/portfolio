@@ -79,9 +79,6 @@ function MainLoader() {
             <div className="text-center">
                 {/* Logo/Icon */}
                 <div className="relative mb-8">
-                    <div className="absolute inset-0 animate-spin">
-                        <div className="w-20 h-20 border-4 border-transparent border-t-green-400 border-r-blue-400 rounded-full"></div>
-                    </div>
                     <div className="w-20 h-20 flex items-center justify-center">
                         <Code className="w-10 h-10 text-white" />
                     </div>
