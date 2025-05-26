@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User,
     Phone,
@@ -23,6 +23,7 @@ import {
     Code,
     Clock
 } from 'lucide-react';
+import apiClient from './ApiClient';
 
 function Profile() {
     const [profileData, setProfileData] = useState({
@@ -78,6 +79,29 @@ function Profile() {
 
     const [activeSection, setActiveSection] = useState('basic');
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const { data } = await apiClient.get('/');
+
+                // Convert Date fields
+                if (data.birthday) {
+                    data.birthday = new Date(data.birthday).toISOString().split('T')[0];
+                }
+
+                setProfileData(data);
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                alert('Error loading profile data');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadProfile();
+    }, []);
 
     const sections = [
         { id: 'basic', label: 'Basic', icon: User },
@@ -139,10 +163,16 @@ function Profile() {
 
     const handleSave = async () => {
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsSaving(false);
-        alert('Profile saved successfully!');
+        try {
+            const { data } = await apiClient.put('/', profileData);
+            setProfileData(data);
+            alert('Profile saved successfully!');
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(error.response?.data?.message || 'Error saving profile');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const renderBasicSection = () => (
@@ -227,7 +257,7 @@ function Profile() {
                     value={profileData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+94XXXXXXXXX"
                 />
             </div>
 

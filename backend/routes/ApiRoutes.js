@@ -4,6 +4,7 @@ import { uploadImage } from '../middlewares/UploadMiddlewareCtrl.js'
 import { verifyAuthToken } from '../tools/CheckAuth.js'
 import logOut from '../controllers/logOut/logOut.js'
 import { changePassword, generateOTP, getEmail, validateOTP } from '../controllers/forgotPassword/ForgotPassword.js'
+import { getProfile, saveProfile } from '../controllers/userDetails/UserDetails.js'
 
 const router = express.Router()
 
@@ -17,6 +18,10 @@ router.post("/logout", logOut)
 router.post("/forgot-password", getEmail, generateOTP)
 router.post("/validate-otp", validateOTP)
 router.post("/change-password", changePassword)
+
+
+router.get('/profile', getProfile);
+router.put('/profile', saveProfile);
 
 router.post("/register", uploadImage.single("profilePicture"), createAccount)
 
