@@ -6,6 +6,7 @@ import { BACKEND_URL } from '../tools/Tools';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { delay } from 'framer-motion';
+import { logLogin, logTriedLogin } from '../tools/ActivityLogger';
 
 const Login = () => {
     const [currentView, setCurrentView] = useState('login');
@@ -102,11 +103,13 @@ const Login = () => {
                     password: formData.password
                 }, { withCredentials: true });
                 toast.success('Login successful');
+                logLogin();
                 if (res.status == 200) {
                     navigate("/admin")
                 }
             } catch (e) {
                 console.log(e);
+                logTriedLogin();
                 toast.error(e?.response?.data?.message || e.message || "Login failed");
             }
         } else if (currentView === 'forgot') {

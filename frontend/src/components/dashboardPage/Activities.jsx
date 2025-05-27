@@ -19,127 +19,33 @@ import {
     ChevronUp,
     Search,
     Calendar,
-    Eye
+    Eye,
+    AlertCircleIcon
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { BACKEND_URL } from '../../tools/Tools';
+import axios from 'axios';
 
 function ActivitiesTab() {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [selectedTimeRange, setSelectedTimeRange] = useState('today');
     const [expandedSessions, setExpandedSessions] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
+    const [activitiesData, setActivitiesData] = useState({});
 
-    // Mock data - replace with real data
-    const activitiesData = {
-        '192.168.1.45': {
-            userType: 'user',
-            location: 'New York, US',
-            browser: 'Chrome 120.0',
-            device: 'Desktop',
-            firstSeen: '2024-05-25 09:15:00',
-            lastSeen: '2024-05-25 10:45:00',
-            totalActions: 8,
-            activities: [
-                {
-                    id: 1,
-                    action: 'Visited portfolio',
-                    timestamp: '2024-05-25 10:45:00',
-                    type: 'visit',
-                    details: 'Landing page view'
-                },
-                {
-                    id: 2,
-                    action: 'Downloaded CV',
-                    timestamp: '2024-05-25 10:42:00',
-                    type: 'download',
-                    details: 'CV_John_Doe.pdf'
-                },
-                {
-                    id: 3,
-                    action: 'Clicked on E-commerce Platform',
-                    timestamp: '2024-05-25 10:38:00',
-                    type: 'project_click',
-                    details: 'Project view - E-commerce Platform'
-                },
-                {
-                    id: 4,
-                    action: 'Sent email via contact form',
-                    timestamp: '2024-05-25 10:35:00',
-                    type: 'email',
-                    details: 'Mail: user@email.com'
-                }
-            ]
-        },
-        '10.0.0.23': {
-            userType: 'user',
-            location: 'London, UK',
-            browser: 'Firefox 119.0',
-            device: 'Mobile',
-            firstSeen: '2024-05-25 08:30:00',
-            lastSeen: '2024-05-25 08:45:00',
-            totalActions: 3,
-            activities: [
-                {
-                    id: 6,
-                    action: 'Visited portfolio',
-                    timestamp: '2024-05-25 08:45:00',
-                    type: 'visit',
-                    details: 'Mobile view'
-                },
-                {
-                    id: 7,
-                    action: 'Clicked on Portfolio Website',
-                    timestamp: '2024-05-25 08:42:00',
-                    type: 'project_click',
-                    details: 'Project view - Portfolio Website'
-                },
-                {
-                    id: 8,
-                    action: 'Downloaded CV',
-                    timestamp: '2024-05-25 08:35:00',
-                    type: 'download',
-                    details: 'CV_John_Doe.pdf'
-                }
-            ]
-        },
-        '192.168.1.100': {
-            userType: 'admin',
-            location: 'San Francisco, US',
-            browser: 'Chrome 120.0',
-            device: 'Desktop',
-            email: 'admin@portfolio.com',
-            firstSeen: '2024-05-25 07:00:00',
-            lastSeen: '2024-05-25 11:30:00',
-            totalActions: 12,
-            activities: [
-                {
-                    id: 9,
-                    action: 'Updated project: Task Manager App',
-                    timestamp: '2024-05-25 11:30:00',
-                    type: 'update',
-                    details: 'Modified description and added new screenshots'
-                },
-                {
-                    id: 10,
-                    action: 'Added new project: Weather App',
-                    timestamp: '2024-05-25 10:15:00',
-                    type: 'create',
-                    details: 'Created new project with React and OpenWeather API'
-                },
-                {
-                    id: 11,
-                    action: 'Logged in',
-                    timestamp: '2024-05-25 09:45:00',
-                    type: 'login',
-                    details: 'Admin dashboard access'
-                },
-                {
-                    id: 12,
-                    action: 'Deleted project: Old Portfolio',
-                    timestamp: '2024-05-25 09:30:00',
-                    type: 'delete',
-                    details: 'Removed outdated project'
-                }
-            ]
+    useEffect(() => {
+        fetchActivities();
+    }, []);
+
+    const fetchActivities = async () => {
+        try {
+            const response = await axios.get(`${BACKEND_URL}/api/activity/logs`, {
+                withCredentials: true
+            });
+
+            setActivitiesData(response.data);
+        } catch (error) {
+            console.error('Error fetching activities:', error.response?.data || error.message);
         }
     };
 
@@ -150,6 +56,7 @@ function ActivitiesTab() {
             case 'project_click': return MousePointer;
             case 'email': return Mail;
             case 'login': return LogIn;
+            case 'security': return AlertCircleIcon;
             case 'create': return Plus;
             case 'update': return Edit;
             case 'delete': return Trash2;
@@ -164,6 +71,7 @@ function ActivitiesTab() {
             case 'project_click': return 'text-purple-400 bg-purple-400/20';
             case 'email': return 'text-orange-400 bg-orange-400/20';
             case 'login': return 'text-cyan-400 bg-cyan-400/20';
+            case 'security': return 'text-red-400 bg-red-400/20';
             case 'create': return 'text-emerald-400 bg-emerald-400/20';
             case 'update': return 'text-yellow-400 bg-yellow-400/20';
             case 'delete': return 'text-red-400 bg-red-400/20';

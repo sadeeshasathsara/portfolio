@@ -15,6 +15,9 @@ import {
     updateCvDownloadNotify,
     updateProjectViewNotify,
 } from '../controllers/settingsEnabling/SettingsEnabling.js'
+import { createVisit } from '../controllers/activity/CreateVisit.js'
+import { logActivity } from '../controllers/activity/GenericActivity.js'
+import { readActivityLogs } from '../controllers/activity/ReadActivity.js'
 
 const router = express.Router()
 
@@ -48,5 +51,9 @@ router.put("/settings/email-inquiry-notify", updateEmailInquiryNotify);
 router.put("/settings/user-visit-notify", updateUserVisitNotify);
 router.put("/settings/cv-download-notify", updateCvDownloadNotify);
 router.put("/settings/project-view-notify", updateProjectViewNotify);
+
+router.post('/activity/visit', createVisit);
+router.post('/activity/log', logActivity);
+router.get('/activity/logs', readActivityLogs);
 
 export default router

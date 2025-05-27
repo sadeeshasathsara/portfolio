@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { logEmail } from '../../tools/ActivityLogger';
 
 function Contact() {
     // Form state
@@ -132,6 +133,8 @@ function Contact() {
             //         info: { error: true, msg: "Something went wrong. Please try again later." }
             //     });
             // }
+
+            logEmail(formData.email);
         }
     };
 
@@ -359,8 +362,8 @@ function Contact() {
                                     type="submit"
                                     disabled={status.submitting}
                                     className={`w-full md:w-auto px-8 py-3 rounded-lg font-medium flex items-center justify-center ${status.submitting
-                                            ? 'bg-gray-700 cursor-not-allowed'
-                                            : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105'
+                                        ? 'bg-gray-700 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105'
                                         } text-white shadow-lg shadow-green-500/20 transition-all duration-300`}
                                 >
                                     {status.submitting ? (

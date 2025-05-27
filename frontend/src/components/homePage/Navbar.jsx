@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { logDownload } from '../../tools/ActivityLogger';
 
 function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -46,6 +47,10 @@ function Navbar() {
         { name: 'Contact', path: '#contact' },
     ];
 
+    const downloadCv = () => {
+        logDownload('Sathsara_K_CV.pdf');
+    }
+
     return (
         <header className={`transition-all duration-300 ${isScrolled ? 'bg-[#101828] shadow-sm fixed top-0 left-0 w-full z-50' : ''}`}>
             <div className="max-w-7xl mx-auto px-5 py-4 flex justify-between items-center">
@@ -65,7 +70,7 @@ function Navbar() {
                             {tab.name}
                         </a>
                     ))}
-                    <button className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
+                    <button onClick={downloadCv} className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
                         Download CV
                     </button>
                 </nav>

@@ -6,9 +6,12 @@ import bodyParser from "body-parser"
 import cookieParser from 'cookie-parser';
 
 import ApiRoutes from "./routes/ApiRoutes.js"
+import { enrichRequest } from "./middlewares/EnrichRequest.js"
 
 
 const app = express()
+
+app.set('trust proxy', true);
 
 
 // Middlewares
@@ -16,6 +19,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(enrichRequest);
 
 
 const corsOptions = {

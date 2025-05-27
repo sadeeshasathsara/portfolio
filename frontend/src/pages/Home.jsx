@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Loader2, Code, User, Mail, Briefcase } from 'lucide-react';
+import { createVisit } from '../tools/ActivityLogger';
 
 // Lazy load components
 const Navbar = lazy(() => import('../components/homePage/navbar'));
@@ -124,6 +125,11 @@ function Home() {
         contact: false,
         social: false
     });
+
+    useEffect(() => {
+        // Log visit activity
+        createVisit();
+    }, []);
 
     // Handle scroll effect for navbar
     useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github, Eye, Code, Layout } from 'lucide-react';
+import { logProjectClick } from '../../tools/ActivityLogger';
 
 function Projects() {
     const [filter, setFilter] = useState('all');
@@ -234,7 +235,10 @@ function Projects() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="bg-green-500 hover:bg-green-600 text-black font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                                                    onClick={(e) => e.stopPropagation()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        logProjectClick(`${project.title} - Live View`);
+                                                    }}
                                                 >
                                                     <Eye size={18} />
                                                 </a>
@@ -245,7 +249,10 @@ function Projects() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="bg-gray-800 hover:bg-gray-700 text-white font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                                                    onClick={(e) => e.stopPropagation()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        logProjectClick(`${project.title} - GitHub View`);
+                                                    }}
                                                 >
                                                     <Github size={18} />
                                                 </a>
