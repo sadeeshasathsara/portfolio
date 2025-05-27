@@ -24,6 +24,10 @@ import {
     Server,
     Search
 } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { BACKEND_URL } from '../../tools/Tools';
 
 function SettingsTab() {
     const [activeTab, setActiveTab] = useState('security');
@@ -82,17 +86,59 @@ function SettingsTab() {
 
     const toggleSetting = (key) => {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+        if (key === 'twoFactorEnabled') {
+            try {
+                axios.put(`${BACKEND_URL}/api/settings/two-factor`, { value: !settings.twoFactorEnabled }, {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                toast.success(`Two-factor authentication ${!settings.twoFactorEnabled ? 'enabled' : 'disabled'} successfully!`);
+            } catch (error) {
+                console.error("Error toggling two-factor authentication:", error);
+                toast.error("Failed to update two-factor authentication setting");
+            }
+        }
     };
 
     const handleInputChange = (key, value) => {
         setSettings(prev => ({ ...prev, [key]: value }));
     };
 
-    const handlePasswordSubmit = (e) => {
+    const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        // Handle password change logic here
-        setShowPasswordChange(false);
-        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+        // Validate passwords
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            toast.error("New passwords don't match");
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${BACKEND_URL}/api/reset-password`, {
+                newPassword: passwordForm.newPassword,
+                confirmPassword: passwordForm.confirmPassword
+            }, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (res.status === 200) {
+                toast.success("Password updated successfully!");
+                setShowPasswordChange(false);
+                setPasswordForm({
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+            }
+        } catch (error) {
+            console.error("Error updating password:", error);
+            toast.error(error.response?.data?.message || "Failed to update password");
+        }
     };
 
     const handleAddAdmin = (e) => {
@@ -169,7 +215,7 @@ function SettingsTab() {
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-2 space-y-8">
-
+            <ToastContainer />
             {/* Tabs */}
             <div className="border-b border-gray-700/50 mb-8">
                 <div className="flex space-x-8 overflow-x-auto">
@@ -210,32 +256,49 @@ function SettingsTab() {
                                 Change Password
                             </button>
                         ) : (
-                            <div className="space-y-4 max-w-md">
-                                <InputField
-                                    label="Current Password"
-                                    type="password"
-                                    value={passwordForm.currentPassword}
-                                    onChange={(value) => setPasswordForm(prev => ({ ...prev, currentPassword: value }))}
-                                    required
-                                />
-                                <InputField
-                                    label="New Password"
-                                    type="password"
-                                    value={passwordForm.newPassword}
-                                    onChange={(value) => setPasswordForm(prev => ({ ...prev, newPassword: value }))}
-                                    required
-                                />
-                                <InputField
-                                    label="Confirm New Password"
-                                    type="password"
-                                    value={passwordForm.confirmPassword}
-                                    onChange={(value) => setPasswordForm(prev => ({ ...prev, confirmPassword: value }))}
-                                    required
-                                />
+                            <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Current Password <span className="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={passwordForm.currentPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400/50 transition-colors"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        New Password <span className="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={passwordForm.newPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400/50 transition-colors"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Confirm New Password <span className="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={passwordForm.confirmPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400/50 transition-colors"
+                                        required
+                                    />
+                                </div>
+
                                 <div className="flex gap-2">
                                     <button
-                                        type="button"
-                                        onClick={handlePasswordSubmit}
+                                        type="submit"
                                         className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
                                     >
                                         <Save className="w-4 h-4" />
@@ -249,7 +312,7 @@ function SettingsTab() {
                                         Cancel
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         )}
                     </div>
 

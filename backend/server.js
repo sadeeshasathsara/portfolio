@@ -29,7 +29,7 @@ app.use(cors(corsOptions))
 app.use("/api", ApiRoutes)
 app.use('/up/image', express.static('src/profilePics'));
 app.use('/up/cv', express.static('src/CVs'));
-
+app.use('/up/project', express.static('src/projectPics'));
 
 // MongoDB connection
 if (!process.env.MONGODB_URI) {
