@@ -356,7 +356,7 @@ function Profile() {
                         const Icon = platform.icon;
                         return (
                             <div key={platform.key}>
-                                <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                                <label className="text-sm font-medium text-gray-300 mb-2 flex items-center">
                                     <Icon className={`w-4 h-4 mr-2 ${platform.color}`} />
                                     {platform.label}
                                 </label>
@@ -405,7 +405,7 @@ function Profile() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-300 mb-2 flex items-center">
                         <Code className="w-4 h-4 mr-2 text-green-400" />
                         <span className="hidden sm:inline">Projects</span>
                         <span className="sm:hidden">Proj</span>
@@ -420,7 +420,7 @@ function Profile() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-300 mb-2 flex items-center">
                         <Star className="w-4 h-4 mr-2 text-blue-400" />
                         <span className="hidden sm:inline">Technologies</span>
                         <span className="sm:hidden">Tech</span>
@@ -435,7 +435,7 @@ function Profile() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-300 mb-2 flex items-center">
                         <Clock className="w-4 h-4 mr-2 text-purple-400" />
                         <span className="hidden sm:inline">Experience</span>
                         <span className="sm:hidden">Exp</span>
@@ -450,7 +450,7 @@ function Profile() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-300 mb-2 flex items-center">
                         <Users className="w-4 h-4 mr-2 text-pink-400" />
                         <span className="hidden sm:inline">Satisfaction %</span>
                         <span className="sm:hidden">Sat %</span>
