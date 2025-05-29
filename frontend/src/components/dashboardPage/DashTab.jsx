@@ -31,7 +31,6 @@ function DashTab() {
     useState(() => {
         try {
             const res = axios.get(`${BACKEND_URL}/api/counts`)
-            console.log(res.data);
 
         } catch (error) {
             console.error("Error fetching stats:", error);
