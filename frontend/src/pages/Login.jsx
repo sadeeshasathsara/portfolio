@@ -6,7 +6,7 @@ import { BACKEND_URL } from '../tools/Tools';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { delay } from 'framer-motion';
-import { logLogin, logTriedLogin } from '../tools/ActivityLogger';
+import { logLogin, logTriedLogin } from '../tools/ActivityRecorder';
 
 const Login = () => {
     const [currentView, setCurrentView] = useState('login');

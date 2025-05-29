@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github, Eye, Code, Layout } from 'lucide-react';
-import { logProjectClick } from '../../tools/ActivityLogger';
+import { logProjectClick } from '../../tools/ActivityRecorder';
 
 function Projects() {
     const [filter, setFilter] = useState('all');

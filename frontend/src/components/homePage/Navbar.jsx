@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { logDownload } from '../../tools/ActivityLogger';
+import { logDownload } from '../../tools/ActivityRecorder';
 
 function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);

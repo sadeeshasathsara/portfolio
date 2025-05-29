@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
-import { logEmail } from '../../tools/ActivityLogger';
+import { logEmail } from '../../tools/ActivityRecorder';
 import axios from 'axios';
 import { BACKEND_URL } from '../../tools/Tools';
 
