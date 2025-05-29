@@ -23,7 +23,7 @@ app.use(enrichRequest);
 
 
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || "https://sathsara-k.onrender.com",
+    origin: "https://sathsara-k.onrender.com",
     credentials: true,
 };
 app.use(cors(corsOptions))

@@ -31,9 +31,9 @@ export const LoginWithEmail = async (req, res) => {
         // Set token as HTTP-only cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
+            secure: true, // Always true in production with HTTPS
+            sameSite: "none", // ❗ Required for cross-site cookie sharing
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         return res.status(200).json({ message: "Log in successfull" });
