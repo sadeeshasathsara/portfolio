@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
+import { log } from "console";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -38,6 +39,7 @@ export const LoginWithEmail = async (req, res) => {
         return res.status(200).json({ message: "Log in successfull" });
 
     } catch (error) {
+        console.error("Login error:", error.message);
         res.status(500).json({ message: `Internal Server Error. ${error.message}` });
     }
 };
