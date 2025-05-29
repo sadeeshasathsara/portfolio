@@ -15,7 +15,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "run": "node server.js"
   },
   "dependencies": {
     "axios": "^1.9.0",

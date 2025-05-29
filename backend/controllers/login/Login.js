@@ -31,8 +31,9 @@ export const LoginWithEmail = async (req, res) => {
         // Set token as HTTP-only cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: true, // Always true in production with HTTPS
-            sameSite: "none", // ❗ Required for cross-site cookie sharing
+            secure: true,
+            sameSite: "none",
+            domain: "sathsara-k.onrender.com",
             maxAge: 24 * 60 * 60 * 1000,
         });
 
