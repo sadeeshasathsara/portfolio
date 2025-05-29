@@ -23,7 +23,7 @@ app.use(enrichRequest);
 
 
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "https://sathsara-k.onrender.com",
     credentials: true,
 };
 app.use(cors(corsOptions))
