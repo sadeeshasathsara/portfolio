@@ -18,6 +18,12 @@ import {
 import { createVisit } from '../controllers/activity/CreateVisit.js'
 import { logActivity } from '../controllers/activity/GenericActivity.js'
 import { readActivityLogs } from '../controllers/activity/ReadActivity.js'
+import Contact from '../controllers/contact/Contact.js'
+import Reply from '../controllers/contact/Reply.js'
+import ReadMails from '../controllers/contact/Read.js'
+import { setRead } from '../controllers/contact/EmailTools.js'
+import { increaseCvDownloads, increasePortfolioVisitors, increaseProjectClicks, increaseTotalProjects } from '../controllers/dashboardCounts/dashboardCounts.js'
+import { getCounts } from '../controllers/dashboardCounts/getCounts.js'
 
 const router = express.Router()
 
@@ -55,5 +61,15 @@ router.put("/settings/project-view-notify", updateProjectViewNotify);
 router.post('/activity/visit', createVisit);
 router.post('/activity/log', logActivity);
 router.get('/activity/logs', readActivityLogs);
+
+router.post('/contact', Contact)
+router.post('/contact/:id/reply', Reply)
+router.get('/contact/all', ReadMails)
+router.put('/contact/set-read', setRead)
+
+router.post('/portfolio-visitors', increasePortfolioVisitors);
+router.post('/total-projects', increaseTotalProjects);
+router.post('/project-clicks', increaseProjectClicks);
+router.get('/counts', getCounts);
 
 export default router

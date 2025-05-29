@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { logEmail } from '../../tools/ActivityLogger';
+import axios from 'axios';
+import { BACKEND_URL } from '../../tools/Tools';
 
 function Contact() {
     // Form state
@@ -75,64 +77,41 @@ function Contact() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (validateForm()) {
-            setStatus(prevStatus => ({ ...prevStatus, submitting: true }));
+        if (!validateForm()) return;
 
-            // Simulate form submission
+        setStatus(prevStatus => ({ ...prevStatus, submitting: true }));
+
+        try {
+            const response = await axios.post(`${BACKEND_URL}/api/contact`, formData);
+
+            setStatus({
+                submitted: true,
+                submitting: false,
+                info: { error: false, msg: response.data.message || "Thank you! Your message has been sent successfully." },
+            });
+
+            // Reset form after 3 seconds
             setTimeout(() => {
                 setStatus({
-                    submitted: true,
+                    submitted: false,
                     submitting: false,
-                    info: { error: false, msg: "Thank you! Your message has been sent successfully." }
+                    info: { error: false, msg: null }
                 });
+                setFormData({
+                    name: '',
+                    email: '',
+                    subject: '',
+                    message: ''
+                });
+            }, 3000);
 
-                // Reset form after 3 seconds
-                setTimeout(() => {
-                    setStatus({
-                        submitted: false,
-                        submitting: false,
-                        info: { error: false, msg: null }
-                    });
-                    setFormData({
-                        name: '',
-                        email: '',
-                        subject: '',
-                        message: ''
-                    });
-                }, 3000);
-            }, 1500);
-
-            // Actual implementation would post to your backend endpoint
-            // try {
-            //     const response = await fetch('/api/contact', {
-            //         method: 'POST',
-            //         headers: { 'Content-Type': 'application/json' },
-            //         body: JSON.stringify(formData)
-            //     });
-            //     
-            //     const data = await response.json();
-            //     
-            //     if (response.ok) {
-            //         setStatus({
-            //             submitted: true,
-            //             submitting: false,
-            //             info: { error: false, msg: data.message }
-            //         });
-            //         setFormData({ name: '', email: '', subject: '', message: '' });
-            //     } else {
-            //         setStatus({
-            //             submitted: false,
-            //             submitting: false,
-            //             info: { error: true, msg: data.message }
-            //         });
-            //     }
-            // } catch (error) {
-            //     setStatus({
-            //         submitted: false,
-            //         submitting: false,
-            //         info: { error: true, msg: "Something went wrong. Please try again later." }
-            //     });
-            // }
+        } catch (error) {
+            const msg = error.response?.data?.message || "Something went wrong. Please try again later.";
+            setStatus({
+                submitted: false,
+                submitting: false,
+                info: { error: true, msg },
+            });
 
             logEmail(formData.email);
         }

@@ -22,6 +22,8 @@ import {
     Download,
     Plus
 } from 'lucide-react';
+import axios from 'axios';
+import { BACKEND_URL } from '../../tools/Tools';
 
 function Messages() {
     const [selectedEmail, setSelectedEmail] = useState(null);
@@ -35,300 +37,30 @@ function Messages() {
     const [isLoading, setIsLoading] = useState(false);
     const [hasMoreEmails, setHasMoreEmails] = useState(true);
     const fileInputRef = useRef(null);
+    const [allEmails, setAllEmails] = useState([]);
 
-    // Mock email data with attachments
-    const allEmails = [
-        {
-            id: 1,
-            sender: "john.doe@company.com",
-            senderName: "John Doe",
-            subject: "Job Opportunity - Frontend Developer",
-            preview: "Hi there! I came across your portfolio and I'm impressed with your work. We have an exciting frontend developer position...",
-            content: `Hi there!
+    useEffect(() => {
+        const fetchEmails = async () => {
+            try {
+                const res = await axios.get(`${BACKEND_URL}/api/contact/all`);
+                setAllEmails(res.data);
+            } catch (error) {
+                console.error('Failed to fetch emails:', error);
+            }
+        };
 
-I came across your portfolio and I'm impressed with your work, particularly your e-commerce platform project. The attention to detail in the UI/UX design is outstanding.
-
-We have an exciting frontend developer position at our company that I think would be a perfect fit for your skills. The role involves:
-
-• Building modern web applications with React and TypeScript
-• Collaborating with our design team to implement pixel-perfect interfaces
-• Working on performance optimization and accessibility improvements
-• Mentoring junior developers
-
-The compensation package is competitive, with a salary range of $95,000 - $120,000 plus benefits including health insurance, 401k matching, and flexible work arrangements.
-
-Would you be interested in scheduling a call to discuss this opportunity further?
-
-Best regards,
-John Doe
-Senior Technical Recruiter
-TechCorp Solutions`,
-            time: "2 hours ago",
-            isNew: true,
-            isStarred: false,
-            hasAttachment: false,
-            attachments: [],
-            priority: "high"
-        },
-        {
-            id: 2,
-            sender: "sarah.wilson@startup.io",
-            senderName: "Sarah Wilson",
-            subject: "Collaboration Proposal - Web Development Project",
-            preview: "Hello! I'm reaching out regarding a potential collaboration opportunity. We're looking for a talented developer...",
-            content: `Hello!
-
-I'm reaching out regarding a potential collaboration opportunity. We're a fast-growing startup in the fintech space, and we're looking for a talented developer to help us build our next-generation trading platform.
-
-After reviewing your portfolio, especially your task manager app, I believe your skills would be a great addition to our project. Here's what we're looking for:
-
-Project Details:
-• Modern React-based trading dashboard
-• Real-time data visualization with charts
-• Mobile-responsive design
-• Integration with financial APIs
-
-We're offering:
-• Competitive project-based compensation
-• Potential for long-term partnership
-• Equity options for the right candidate
-• Flexible timeline and remote work
-
-The project timeline is approximately 3-4 months, and we're hoping to start in the next few weeks.
-
-I'd love to hop on a call to discuss the details further. Are you available for a brief chat this week?
-
-Looking forward to hearing from you!
-
-Best,
-Sarah Wilson
-CTO & Co-founder
-FinanceFlow Startup`,
-            time: "1 day ago",
-            isNew: true,
-            isStarred: true,
-            hasAttachment: true,
-            attachments: [
-                { name: "Project_Requirements.pdf", size: "2.4 MB", type: "pdf" },
-                { name: "UI_Mockups.fig", size: "8.7 MB", type: "design" }
-            ],
-            priority: "medium"
-        },
-        {
-            id: 3,
-            sender: "mike.chen@agency.com",
-            senderName: "Mike Chen",
-            subject: "Project Inquiry - E-commerce Website",
-            preview: "Good afternoon! We're impressed by your portfolio and would like to discuss a potential project with you...",
-            content: `Good afternoon!
-
-We're impressed by your portfolio and would like to discuss a potential project with you. Our agency has a client who needs a comprehensive e-commerce solution, and your previous work fits perfectly with what they're looking for.
-
-Project Scope:
-• Full-stack e-commerce platform
-• Custom product catalog with advanced filtering
-• Secure payment integration (Stripe/PayPal)
-• Admin dashboard for inventory management
-• Mobile-first responsive design
-
-Budget: $15,000 - $25,000
-Timeline: 6-8 weeks
-Start Date: Flexible
-
-The client is in the fashion industry, so aesthetics and user experience are paramount. Your portfolio demonstrates exactly the kind of modern, clean design they're seeking.
-
-Would you be available for a discovery call next week? We'd love to share more details about the project and see if it's a good fit for both sides.
-
-Please let me know your availability!
-
-Regards,
-Mike Chen
-Project Manager
-Digital Solutions Agency`,
-            time: "2 days ago",
-            isNew: false,
-            isStarred: false,
-            hasAttachment: true,
-            attachments: [
-                { name: "Client_Brief.docx", size: "156 KB", type: "document" },
-                { name: "Reference_Images.zip", size: "12.3 MB", type: "archive" }
-            ],
-            priority: "medium"
-        },
-        {
-            id: 4,
-            sender: "lisa.park@freelance.com",
-            senderName: "Lisa Park",
-            subject: "Freelance Network Invitation",
-            preview: "Hi! I'm building a network of top-tier freelance developers and would love to have you join our community...",
-            content: `Hi!
-
-I'm building a network of top-tier freelance developers and would love to have you join our community. Your work quality and portfolio presentation really stand out.
-
-Our network offers:
-• High-quality project referrals
-• Collaborative opportunities with other developers
-• Monthly virtual meetups and workshops
-• Resource sharing and best practices discussions
-
-We're selective about our members and only invite developers who demonstrate exceptional skill and professionalism. Your portfolio clearly shows both.
-
-If you're interested, I'd be happy to send you more details about our community and the onboarding process.
-
-Best regards,
-Lisa Park
-Community Manager
-FreelanceHub Network`,
-            time: "3 days ago",
-            isNew: false,
-            isStarred: false,
-            hasAttachment: false,
-            attachments: [],
-            priority: "low"
-        },
-        {
-            id: 5,
-            sender: "alex.rodriguez@techstartup.com",
-            senderName: "Alex Rodriguez",
-            subject: "Technical Interview - Senior React Developer",
-            preview: "Hello! Thank you for your interest in our Senior React Developer position. We'd like to move forward...",
-            content: `Hello!
-
-Thank you for your interest in our Senior React Developer position. We'd like to move forward with the next step in our hiring process.
-
-Based on your portfolio review, our team is excited to learn more about your experience and technical approach. We'd like to schedule a technical interview that will cover:
-
-• React ecosystem and best practices
-• State management strategies
-• Performance optimization techniques
-• Code architecture and design patterns
-• Live coding session (45 minutes)
-
-The interview will be conducted via video call and should take approximately 2 hours total. We're flexible with scheduling and can accommodate your availability.
-
-Available time slots this week:
-• Tuesday 2:00 PM - 4:00 PM EST
-• Wednesday 10:00 AM - 12:00 PM EST
-• Thursday 3:00 PM - 5:00 PM EST
-• Friday 1:00 PM - 3:00 PM EST
-
-Please let me know which slot works best for you, and we'll send the meeting details.
-
-Looking forward to our conversation!
-
-Best regards,
-Alex Rodriguez
-Engineering Manager
-TechStartup Inc.`,
-            time: "4 days ago",
-            isNew: false,
-            isStarred: true,
-            hasAttachment: true,
-            attachments: [
-                { name: "Interview_Guidelines.pdf", size: "890 KB", type: "pdf" }
-            ],
-            priority: "high"
-        },
-        {
-            id: 6,
-            sender: "emma.davis@designstudio.co",
-            senderName: "Emma Davis",
-            subject: "Design Collaboration Opportunity",
-            preview: "Hi! I'm a UI/UX designer and I've been following your work. I have a collaboration proposal...",
-            content: `Hi!
-
-I'm a UI/UX designer and I've been following your work. I have a collaboration proposal that I think could be mutually beneficial.
-
-I specialize in creating beautiful, user-centered designs for web applications, and I'm looking for a skilled developer to partner with on upcoming projects. Your development skills combined with my design expertise could create something amazing.
-
-What I bring to the table:
-• 5+ years of UI/UX design experience
-• Expertise in Figma, Adobe Creative Suite
-• User research and usability testing
-• Strong understanding of modern design trends
-• Client relationships and project pipeline
-
-I have several potential projects lined up that would be perfect for our collaboration:
-• SaaS dashboard redesign ($8,000 budget)
-• E-commerce mobile app ($15,000 budget)
-• Corporate website overhaul ($12,000 budget)
-
-Would you be interested in discussing a partnership? I'd love to show you my portfolio and discuss how we could work together.
-
-Best,
-Emma Davis
-Senior UI/UX Designer
-DesignStudio Co.`,
-            time: "5 days ago",
-            isNew: false,
-            isStarred: false,
-            hasAttachment: true,
-            attachments: [
-                { name: "Portfolio_Samples.pdf", size: "5.2 MB", type: "pdf" },
-                { name: "Collaboration_Proposal.docx", size: "234 KB", type: "document" }
-            ],
-            priority: "medium"
-        },
-        {
-            id: 7,
-            sender: "james.wilson@consultant.com",
-            senderName: "James Wilson",
-            subject: "Consulting Project - React Migration",
-            preview: "Good morning! We have a client who needs help migrating their legacy application to React...",
-            content: `Good morning!
-
-We have a client who needs help migrating their legacy application to React, and your expertise would be perfect for this project.
-
-Project Details:
-• Legacy jQuery/PHP application
-• 50+ pages to migrate to React
-• Integration with existing API
-• Timeline: 3-4 months
-• Budget: $35,000 - $45,000
-
-The client is a mid-sized healthcare company, so code quality and security are paramount. Your portfolio shows exactly the kind of clean, maintainable code they need.
-
-This would be a contract position with potential for long-term engagement. The client values quality over speed, so you'd have the time to do things right.
-
-Are you currently available for new projects? I'd love to discuss the details further.
-
-Best regards,
-James Wilson
-Technical Consultant
-Wilson Consulting`,
-            time: "1 week ago",
-            isNew: false,
-            isStarred: false,
-            hasAttachment: false,
-            attachments: [],
-            priority: "medium",
-            previousEmails: [
-                {
-                    id: 'prev1',
-                    senderName: 'Sarah Wilson',
-                    subject: 'Initial inquiry about collaboration',
-                    content: 'Hi! I saw your portfolio online and I\'m impressed with your React work. Would you be interested in discussing a potential collaboration?',
-                    time: '3 days ago',
-                    isReply: false,
-                    attachments: []
-                },
-                {
-                    id: 'prev2',
-                    senderName: 'You',
-                    subject: 'Re: Initial inquiry about collaboration',
-                    content: 'Hi Sarah, thank you for reaching out! I\'d be happy to discuss collaboration opportunities. Could you tell me more about the project?',
-                    time: '2 days ago',
-                    isReply: true,
-                    attachments: []
-                }
-            ]
-        }
-    ];
+        fetchEmails();
+    }, []);
 
     const filteredEmails = allEmails.filter(email => {
-        const matchesSearch = email.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            email.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            email.preview.toLowerCase().includes(searchTerm.toLowerCase());
+        const sender = (email.sender || '').toLowerCase();
+        const subject = (email.subject || '').toLowerCase();
+        const preview = (email.preview || '').toLowerCase();
+        const query = searchTerm.toLowerCase();
+
+        const matchesSearch = sender.includes(query) ||
+            subject.includes(query) ||
+            preview.includes(query);
 
         const matchesFilter = filterStatus === 'all' ||
             (filterStatus === 'unread' && email.isNew) ||
@@ -336,6 +68,8 @@ Wilson Consulting`,
 
         return matchesSearch && matchesFilter;
     });
+
+
 
     const visibleEmails = filteredEmails.slice(0, displayedEmails);
 
@@ -364,26 +98,39 @@ Wilson Consulting`,
         }, 800); // Simulate loading delay
     };
 
+
+
     // Reset displayed emails when search/filter changes
     useEffect(() => {
         setDisplayedEmails(5);
         setHasMoreEmails(filteredEmails.length > 5);
     }, [searchTerm, filterStatus]);
 
-    const handleReply = () => {
+    const handleReply = async () => {
         if (replyText.trim()) {
-            console.log('Sending reply:', {
-                to: selectedEmail.sender,
-                subject: replySubject,
-                content: replyText,
-                attachments: replyAttachments
-            });
-            setReplyText('');
-            setReplySubject('');
-            setReplyAttachments([]);
-            setIsReplying(false);
+            try {
+                const response = await axios.post(`${BACKEND_URL}/api/contact/${selectedEmail.id}/reply`, {
+                    subject: replySubject,
+                    content: replyText,
+                    attachments: replyAttachments // assuming strings or filenames
+                });
+
+                console.log('Reply sent:', response.data);
+
+                // Optional: update the local UI message thread
+                // selectedEmail.previousEmails.push(...)
+
+                setReplyText('');
+                setReplySubject('');
+                setReplyAttachments([]);
+                setIsReplying(false);
+            } catch (err) {
+                console.error('Failed to send reply:', err.response?.data?.message || err.message);
+            }
         }
     };
+
+
 
     const handleFileUpload = (event) => {
         const files = Array.from(event.target.files);
@@ -437,23 +184,30 @@ Wilson Consulting`,
         attachments: []
     });
 
+    const markAsRead = async (emailId) => {
+        try {
+            await axios.put(`${BACKEND_URL}/api/contact/set-read`, { id: emailId });
+
+            // Update local state to mark as read
+            setAllEmails(prevEmails =>
+                prevEmails.map(email =>
+                    email.id === emailId ? { ...email, isNew: false } : email
+                )
+            );
+
+            // If the selected email is the one being marked as read, update it too
+            if (selectedEmail && selectedEmail.id === emailId) {
+                setSelectedEmail(prev => ({ ...prev, isNew: false }));
+            }
+
+        } catch (error) {
+            console.error('Failed to mark email as read:', error);
+        }
+    };
+
     return (
         <div className="space-y-6 p-1 m-3">
-            {/* Header */}
-            <div className="text-center mb-8">
-                <div className="flex items-center justify-center space-x-4">
-                    <p className="text-gray-400 text-sm lg:text-base">
-                        Display using email and add new email
-                    </p>
-                    <button
-                        onClick={() => setShowNewEmail(true)}
-                        className="flex items-center space-x-2 px-4 py-2 bg-green-400/20 hover:bg-green-400/30 text-green-400 rounded-lg transition-all duration-200"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>New Email</span>
-                    </button>
-                </div>
-            </div>
+
 
             {/* New Email Modal */}
             {showNewEmail && (
@@ -903,7 +657,12 @@ Wilson Consulting`,
                                     {filteredEmails.map((email) => (
                                         <div
                                             key={email.id}
-                                            onClick={() => setSelectedEmail(email)}
+                                            onClick={() => {
+                                                setSelectedEmail(email);
+                                                if (email.isNew) {
+                                                    markAsRead(email.id);
+                                                }
+                                            }}
                                             className={`p-4 lg:p-6 hover:bg-gray-700/20 cursor-pointer transition-all duration-200 border-l-4 ${getPriorityColor(email.priority)} ${email.isNew ? 'bg-gray-700/10' : ''
                                                 }`}
                                         >

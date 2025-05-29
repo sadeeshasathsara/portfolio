@@ -15,15 +15,28 @@ import {
     ExternalLink,
     Clock
 } from 'lucide-react';
+import { useState } from 'react';
+import axios from 'axios';
+import { BACKEND_URL } from '../../tools/Tools';
 
 function DashTab() {
     // Mock data - replace with real data
-    const stats = {
-        portfolioVisitors: 1847,
-        totalProjects: 12,
-        projectClicks: 567,
-        cvDownloads: 89
-    };
+    const [stats, setStats] = useState({
+        portfolioVisitors: 0,
+        projectClicks: 0,
+        cvDownloads: 0,
+        totalProjects: 0
+    });
+
+    useState(() => {
+        try {
+            const res = axios.get(`${BACKEND_URL}/api/counts`)
+            console.log(res.data);
+
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
+    }, []);
 
     const recentProjects = [
         {
