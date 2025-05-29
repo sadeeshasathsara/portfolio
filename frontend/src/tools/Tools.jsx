@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export const BACKEND_URL = "http://172.20.10.5:3000";
+export const BACKEND_URL = "https://13.228.225.19:3000";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
