@@ -3,7 +3,7 @@ import { Loader2, Code, User, Mail, Briefcase } from 'lucide-react';
 import { createVisit } from '../tools/ActivityRecorder';
 
 // Lazy load components
-const Navbar = lazy(() => import('../components/homePage/navbar'));
+const Navbar = lazy(() => import('../components/homePage/Navbar'));
 const HeroLeft = lazy(() => import('../components/homePage/HeroLeft'));
 const HeroRight = lazy(() => import('../components/homePage/HeroRight'));
 const About = lazy(() => import('../components/homePage/About'));
