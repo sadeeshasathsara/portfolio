@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export const BACKEND_URL = "https://sathsara-k-backend.onrender.com:3000";
+export const BACKEND_URL = "https://sathsara-k-backend.onrender.com";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
