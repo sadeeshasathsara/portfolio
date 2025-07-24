@@ -36,7 +36,12 @@ function Projects() {
                 // Initialize loading states for all projects
                 const initialLoadStates = {};
                 response.forEach(project => {
-                    initialLoadStates[project.id] = { loading: true, error: false };
+                    // Check if image URL exists and is valid
+                    if (!project.image || project.image === '' || project.image === null) {
+                        initialLoadStates[project.id] = { loading: false, error: true };
+                    } else {
+                        initialLoadStates[project.id] = { loading: true, error: false };
+                    }
                 });
                 setImageLoadStates(initialLoadStates);
             } catch (e) {
@@ -74,6 +79,7 @@ function Projects() {
 
     // Handle image load error
     const handleImageError = (projectId) => {
+        console.log(`Image failed to load for project: ${projectId}`); // Debug log
         setImageLoadStates(prev => ({
             ...prev,
             [projectId]: { loading: false, error: true }
@@ -219,26 +225,29 @@ function Projects() {
 
                                         {/* Error state with animated code icon */}
                                         {loadState.error && (
-                                            <div className="w-full h-full bg-gray-800/50 flex items-center justify-center">
+                                            <div className="w-full h-full bg-gray-800/50 flex items-center justify-center border border-gray-700/30 rounded-lg">
                                                 <motion.div
                                                     variants={codeIconVariants}
                                                     animate="animate"
-                                                    className="text-gray-500"
+                                                    className="text-gray-400 flex flex-col items-center"
                                                 >
                                                     <Code size={48} />
+                                                    <span className="text-xs mt-2 text-gray-500">No Preview</span>
                                                 </motion.div>
                                             </div>
                                         )}
 
                                         {/* Actual image */}
-                                        <img
-                                            src={project.image}
-                                            alt={project.title}
-                                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${loadState.loading || loadState.error ? 'opacity-0 absolute' : 'opacity-100'
-                                                }`}
-                                            onLoad={() => handleImageLoad(project.id)}
-                                            onError={() => handleImageError(project.id)}
-                                        />
+                                        {!loadState.error && (
+                                            <img
+                                                src={project.image}
+                                                alt={project.title}
+                                                className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${loadState.loading ? 'opacity-0 absolute' : 'opacity-100'
+                                                    }`}
+                                                onLoad={() => handleImageLoad(project.id)}
+                                                onError={() => handleImageError(project.id)}
+                                            />
+                                        )}
 
                                         {/* Overlay with action buttons */}
                                         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 flex items-end justify-center
