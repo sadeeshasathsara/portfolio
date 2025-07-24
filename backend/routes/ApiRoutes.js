@@ -22,7 +22,7 @@ import Contact from '../controllers/contact/Contact.js'
 import Reply from '../controllers/contact/Reply.js'
 import ReadMails from '../controllers/contact/Read.js'
 import { setRead } from '../controllers/contact/EmailTools.js'
-import { increaseCvDownloads, increasePortfolioVisitors, increaseProjectClicks, increaseTotalProjects } from '../controllers/dashboardCounts/dashboardCounts.js'
+import { getCountsWithInsights, increaseCvDownloads, increasePortfolioVisitors, increaseProjectClicks, increaseTotalProjects } from '../controllers/dashboardCounts/dashboardCounts.js'
 import { getCounts } from '../controllers/dashboardCounts/getCounts.js'
 
 const router = express.Router()
@@ -71,5 +71,7 @@ router.post('/portfolio-visitors', increasePortfolioVisitors);
 router.post('/total-projects', increaseTotalProjects);
 router.post('/project-clicks', increaseProjectClicks);
 router.get('/counts', getCounts);
+router.get('/counts/insights', getCountsWithInsights);
+
 
 export default router

@@ -28,41 +28,32 @@ function DashTab() {
         totalProjects: 0
     });
 
-    useState(() => {
-        try {
-            const res = axios.get(`${BACKEND_URL}/api/counts`)
+    const [insights, setInsights] = useState({})
 
-        } catch (error) {
-            console.error("Error fetching stats:", error);
-        }
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const res = await axios.get(`${BACKEND_URL}/api/counts/insights`);
+                console.log("Fetched:", res.data);
+
+                setStats(res.data.stats);
+                setInsights(res.data.insights);
+
+            } catch (e) {
+                console.error("Error fetching:", e);
+            }
+        })();
     }, []);
 
-    const recentProjects = [
-        {
-            id: 1,
-            title: "E-commerce Platform",
-            clicks: 156,
-            lastViewed: "2 hours ago",
-            image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=150&h=100&fit=crop",
-            status: "Live"
-        },
-        {
-            id: 2,
-            title: "Portfolio Website",
-            clicks: 289,
-            lastViewed: "1 day ago",
-            image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=150&h=100&fit=crop",
-            status: "Live"
-        },
-        {
-            id: 3,
-            title: "Task Manager App",
-            clicks: 34,
-            lastViewed: "3 days ago",
-            image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=150&h=100&fit=crop",
-            status: "Development"
-        }
-    ];
+
+    const [recentProjects, setRecentProjects] = React.useState([])
+
+    React.useEffect(() => {
+        (async () => {
+            const res = await axios.get(`${BACKEND_URL}/api/project`);
+            setRecentProjects(res.data)
+        })()
+    }, [])
 
     const newMails = [
         {
@@ -164,9 +155,9 @@ function DashTab() {
                         </div>
                         <Eye className="w-4 h-4 text-blue-400" />
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.portfolioVisitors.toLocaleString()}</h3>
+                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.portfolioVisitors ? stats.portfolioVisitors.toLocaleString() : 0}</h3>
                     <p className="text-gray-400 text-xs lg:text-sm">Portfolio Visitors</p>
-                    <p className="text-blue-400 text-xs mt-1">+124 this week</p>
+                    <p className="text-blue-400 text-xs mt-1">{`${insights && insights?.portfolioVisitors?.change >= 0 ? "+" : "-"}${insights?.portfolioVisitors?.value} this ${insights?.portfolioVisitors?.period}`}</p>
                 </div>
 
                 {/* Total Projects */}
@@ -177,9 +168,9 @@ function DashTab() {
                         </div>
                         <Plus className="w-4 h-4 text-green-400" />
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.totalProjects}</h3>
+                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.totalProjects ? stats.totalProjects : 0}</h3>
                     <p className="text-gray-400 text-xs lg:text-sm">Total Projects</p>
-                    <p className="text-green-400 text-xs mt-1">+2 this month</p>
+                    <p className="text-green-400 text-xs mt-1">{`${insights && insights?.totalProjects?.change >= 0 ? "+" : "-"}${insights?.totalProjects?.value} this ${insights?.projectClicks?.period}`}</p>
                 </div>
 
                 {/* Project Click Count */}
@@ -192,7 +183,7 @@ function DashTab() {
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.projectClicks}</h3>
                     <p className="text-gray-400 text-xs lg:text-sm">Project Clicks</p>
-                    <p className="text-purple-400 text-xs mt-1">+43 today</p>
+                    <p className="text-purple-400 text-xs mt-1">{`${insights && insights?.projectClicks?.change >= 0 ? "+" : "-"}${insights?.projectClicks?.value} this ${insights?.projectClicks?.period}`}</p>
                 </div>
 
                 {/* CV Downloads */}
@@ -205,7 +196,7 @@ function DashTab() {
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-white mb-1">{stats.cvDownloads}</h3>
                     <p className="text-gray-400 text-xs lg:text-sm">CV Downloads</p>
-                    <p className="text-orange-400 text-xs mt-1">+8 this week</p>
+                    <p className="text-orange-400 text-xs mt-1">{`${insights && insights?.cvDownloads?.change >= 0 ? "+" : "-"}${insights?.cvDownloads?.value} this ${insights?.cvDownloads?.period}`}</p>
                 </div>
             </div>
 
@@ -234,11 +225,11 @@ function DashTab() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
                                         <h3 className="text-white font-medium text-sm lg:text-base truncate">{project.title}</h3>
-                                        <span className={`px-2 py-1 rounded-full text-xs ${project.status === 'Live'
+                                        <span className={`px-2 py-1 rounded-full text-xs ${project.liveUrl != null
                                             ? 'bg-green-400/20 text-green-400'
                                             : 'bg-yellow-400/20 text-yellow-400'
                                             }`}>
-                                            {project.status}
+                                            {project.liveUrl ? "Live" : "Development"}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs lg:text-sm text-gray-400">

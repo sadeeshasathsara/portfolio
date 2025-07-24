@@ -172,7 +172,7 @@ function Contact() {
                                 <div>
                                     <h4 className="text-white font-medium mb-1">Email</h4>
                                     <a href="mailto:hello@example.com" className="text-gray-300 hover:text-green-400 transition-colors duration-300">
-                                        hello@example.com
+                                        sathsarakumbukage@gmail.com
                                     </a>
                                 </div>
                             </div>
@@ -185,7 +185,7 @@ function Contact() {
                                 <div>
                                     <h4 className="text-white font-medium mb-1">Phone</h4>
                                     <a href="tel:+94770123456" className="text-gray-300 hover:text-blue-400 transition-colors duration-300">
-                                        +94 77 012 3456
+                                        +94 70 77 22 924
                                     </a>
                                 </div>
                             </div>
@@ -198,7 +198,7 @@ function Contact() {
                                 <div>
                                     <h4 className="text-white font-medium mb-1">Location</h4>
                                     <p className="text-gray-300">
-                                        Colombo, Sri Lanka
+                                        Kaluthara, Sri Lanka
                                     </p>
                                 </div>
                             </div>
@@ -208,10 +208,15 @@ function Contact() {
                         <div className="mt-12">
                             <h4 className="text-white font-medium mb-4">Find me on</h4>
                             <div className="flex gap-4">
-                                {['github', 'linkedin', 'twitter', 'dribbble'].map(platform => (
+                                {[
+                                    { platform: 'github', url: 'https://github.com/sadeeshasathsara' },
+                                    { platform: 'linkedin', url: 'https://www.linkedin.com/in/sadeeshasathsara' },
+                                    { platform: 'twitter', url: 'https://twitter.com/' },
+                                    { platform: 'dribbble', url: 'https://dribbble.com/' },
+                                ].map(({ platform, url }) => (
                                     <a
                                         key={platform}
-                                        href={`https://${platform}.com`}
+                                        href={url}
                                         className="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center text-white/70 hover:bg-green-500/20 hover:text-green-400 transition-all duration-300"
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -221,6 +226,7 @@ function Contact() {
                                     </a>
                                 ))}
                             </div>
+
                         </div>
                     </motion.div>
 

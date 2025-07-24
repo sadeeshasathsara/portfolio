@@ -45,7 +45,7 @@ function About() {
                                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 mb-4">
                                     <Code className="h-6 w-6 text-blue-400" />
                                 </div>
-                                <h4 className="text-3xl font-bold text-white mb-1">6+</h4>
+                                <h4 className="text-3xl font-bold text-white mb-1">6</h4>
                                 <p className="text-gray-400 text-sm">Projects Completed</p>
                             </div>
 

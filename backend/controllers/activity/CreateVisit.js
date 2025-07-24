@@ -1,4 +1,5 @@
 import ActivityLog from "../../models/ActivityLog.js";
+import { increasePortfolioVisitors } from "../dashboardCounts/dashboardCounts.js";
 
 export const createVisit = async (req, res) => {
     try {
@@ -26,6 +27,7 @@ export const createVisit = async (req, res) => {
                     details: 'Landing page view'
                 }]
             });
+            increasePortfolioVisitors()
         } else {
             log.lastSeen = now;
             log.totalActions += 1;

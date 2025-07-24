@@ -26,8 +26,8 @@ const ProjectClient = {
 
     // Get all projects (optional search query)
     getProjects: async (search = '') => {
-        const url = search ? `/project?search=${encodeURIComponent(search)}` : '/project';
-        const response = await axios.get(url, { withCredentials: true });
+        const endpoint = search ? `/project?search=${encodeURIComponent(search)}` : '/project';
+        const response = await axios.get(`${BACKEND_URL}/api${endpoint}`);
         return response.data;
     },
 

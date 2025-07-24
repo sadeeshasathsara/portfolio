@@ -18,12 +18,7 @@ const logActivity = (type, action, details) => {
 export const createVisit = () => {
     axios.post(`${BACKEND_URL}/api/activity/visit`)
         .then(response => {
-            axios.post(`${BACKEND_URL}/api/portfolio-visitors`)
-                .then(() => {
-                })
-                .catch(error => {
-                    console.error('Error updating portfolio visitor count:', error.response?.data || error.message);
-                });
+
         })
         .catch(error => {
             console.error('Error logging visit:', error.response?.data || error.message);

@@ -33,7 +33,6 @@ export const LoginWithEmail = async (req, res) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain: "sathsara-k.onrender.com",
             maxAge: 24 * 60 * 60 * 1000,
         });
 

@@ -33,6 +33,10 @@ const projectSchema = new mongoose.Schema({
     tags: {
         type: [String],
         default: []
+    },
+    display: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true

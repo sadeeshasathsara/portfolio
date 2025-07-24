@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 
 import ApiRoutes from "./routes/ApiRoutes.js"
 import { enrichRequest } from "./middlewares/EnrichRequest.js"
+import { fetchPublicGitHubRepos } from "./services/github.service.js"
 
 
 const app = express()
@@ -23,7 +24,7 @@ app.use(enrichRequest);
 
 
 const corsOptions = {
-    origin: "https://sathsara-k.onrender.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
 };
 app.use(cors(corsOptions))
@@ -34,6 +35,20 @@ app.use("/api", ApiRoutes)
 app.use('/up/image', express.static('src/profilePics'));
 app.use('/up/cv', express.static('src/CVs'));
 app.use('/up/project', express.static('src/projectPics'));
+
+const runGitHubSync = async () => {
+    try {
+        const repos = await fetchPublicGitHubRepos();
+        console.log(`GitHub sync: repos fetched`);
+    } catch (err) {
+        console.error('GitHub sync failed:', err.message);
+    }
+};
+
+// Run once on startup
+runGitHubSync();
+// Run every 24 hours
+setInterval(runGitHubSync, 24 * 60 * 60 * 1000);
 
 // MongoDB connection
 if (!process.env.MONGODB_URI) {

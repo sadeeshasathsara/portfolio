@@ -1,19 +1,21 @@
 import mongoose from 'mongoose';
 
 const countsSchema = new mongoose.Schema({
-    portfolioVisitors: {
-        type: Number,
-    },
-    totalProjects: {
-        type: Number,
-    },
-    projectClicks: {
-        type: Number,
-    },
-    cvDownloads: {
-        type: Number,
-    }
-})
+    portfolioVisitors: Number,
+    totalProjects: Number,
+    projectClicks: Number,
+    cvDownloads: Number,
+    history: [
+        {
+            date: { type: Date, default: Date.now },
+            portfolioVisitors: Number,
+            totalProjects: Number,
+            projectClicks: Number,
+            cvDownloads: Number,
+        }
+    ]
+});
+
 
 const Counts = mongoose.model('Counts', countsSchema);
 export default Counts;

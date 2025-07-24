@@ -16,6 +16,8 @@ function Projects({ onOpenModal }) {
     // Fetch projects on component mount and when search term changes
     useEffect(() => {
         fetchProjects();
+
+
     }, []);
 
     // Debounced search effect
@@ -36,7 +38,10 @@ function Projects({ onOpenModal }) {
             setLoading(true);
             setError(null);
             const response = await ProjectClient.getProjects(search);
-            setProjects(response.data);
+            setProjects(response);
+            console.log(projects);
+
+
         } catch (err) {
             console.error('Error fetching projects:', err);
             setError('Failed to load projects. Please try again.');
@@ -129,7 +134,7 @@ function Projects({ onOpenModal }) {
 
                 {/* Projects Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {projects.map(project => (
+                    {(projects || []).map(project => (
                         <div key={project.id} className="group bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/30 overflow-hidden hover:border-purple-500/50 transition-all duration-300 flex flex-col">
                             {/* Project Image */}
                             <div
@@ -141,7 +146,7 @@ function Projects({ onOpenModal }) {
                             >
                                 {project.image ? (
                                     <img
-                                        src={`${BACKEND_URL}${project.imageUrl}`}
+                                        src={`${project.image}`}
                                         alt={project.title}
                                         className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
@@ -236,7 +241,7 @@ function Projects({ onOpenModal }) {
                     ))}
                 </div>
 
-                {projects.length === 0 && !loading && (
+                {Array.isArray(projects) && projects.length === 0 && !loading && (
                     <div className="text-center py-20">
                         <div className="bg-gray-800/30 backdrop-blur-sm rounded-3xl p-12 max-w-md mx-auto border border-gray-700/30">
                             <Code className="w-20 h-20 text-gray-400 mx-auto mb-6" />
