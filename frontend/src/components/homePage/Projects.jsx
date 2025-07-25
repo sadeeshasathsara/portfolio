@@ -284,152 +284,142 @@ function Projects() {
                             ))
                         ) : (
                             /* Show actual project cards */
-                            (visibleProjects || []).map((project) => {
-                                const loadState = imageLoadStates[project.id] || { loading: true, error: false };
+                            (visibleProjects || [])
+                                .filter(project => project.display !== false)
+                                .map((project) => {
+                                    const loadState = imageLoadStates[project.id] || { loading: true, error: false };
 
-                                return (
-                                    <motion.div
-                                        key={project.id}
-                                        variants={cardVariants}
-                                        className="group bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/30 overflow-hidden hover:border-green-500/50 transition-all duration-300 flex flex-col"
-                                    >
-                                        {/* Project image */}
-                                        <div
-                                            className="relative overflow-hidden cursor-pointer aspect-video bg-gray-800"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleCardClick(project.id);
-                                            }}
+                                    return (
+                                        <motion.div
+                                            key={project.id}
+                                            variants={cardVariants}
+                                            className="group bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/30 overflow-hidden hover:border-green-500/50 transition-all duration-300 flex flex-col"
                                         >
-                                            {/* Enhanced shimmer loading effect for images */}
-                                            {loadState.loading && (
-                                                <div className="absolute inset-0 w-full h-full bg-gray-800 overflow-hidden z-10">
-                                                    <motion.div
-                                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/50 to-transparent"
-                                                        variants={shimmerVariants}
-                                                        animate="animate"
-                                                    />
-                                                    {/* Additional shimmer bars for more visible effect */}
-                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                        <div className="w-16 h-16 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin"></div>
+                                            {/* Project image */}
+                                            <div
+                                                className="relative overflow-hidden cursor-pointer aspect-video bg-gray-800"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleCardClick(project.id);
+                                                }}
+                                            >
+                                                {/* Enhanced shimmer loading effect for images */}
+                                                {loadState.loading && (
+                                                    <div className="absolute inset-0 w-full h-full bg-gray-800 overflow-hidden z-10">
+                                                        <motion.div
+                                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/50 to-transparent"
+                                                            variants={shimmerVariants}
+                                                            animate="animate"
+                                                        />
+                                                        {/* Additional shimmer bars for more visible effect */}
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <div className="w-16 h-16 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin"></div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Error state with animated code icon */}
+                                                {(loadState.error && !loadState.loading) || !project.image || project.image.trim() === '' ? (
+                                                    <div className="absolute inset-0 w-full h-full bg-gray-800/50 flex items-center justify-center z-10">
+                                                        <motion.div
+                                                            variants={codeIconVariants}
+                                                            animate="animate"
+                                                            className="text-gray-500"
+                                                        >
+                                                            <Code size={48} />
+                                                        </motion.div>
+                                                    </div>
+                                                ) : null}
+
+
+                                                {/* Actual image */}
+                                                <img
+                                                    src={project.image}
+                                                    alt={project.title}
+                                                    className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${loadState.loading ? 'opacity-0' : 'opacity-100'
+                                                        }`}
+                                                    onLoad={() => handleImageLoad(project.id)}
+                                                    onError={() => handleImageError(project.id)}
+                                                    loading="lazy"
+                                                />
+
+                                                {/* Overlay with action buttons */}
+                                                <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 flex items-end justify-center
+                                                ${isMobile
+                                                        ? (activeCard === project.id ? 'opacity-100' : 'opacity-0')
+                                                        : 'opacity-0 group-hover:opacity-100'
+                                                    }`}>
+                                                    <div className={`p-4 w-full flex justify-center gap-4 transition-transform duration-300
+                                                    ${isMobile
+                                                            ? (activeCard === project.id ? 'translate-y-0' : 'translate-y-10')
+                                                            : 'translate-y-10 group-hover:translate-y-0'
+                                                        }`}>
+                                                        {project.liveUrl && (
+                                                            <a
+                                                                href={project.liveUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="bg-green-500 hover:bg-green-600 text-black font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    logProjectClick(`${project.title} - Live View`);
+                                                                }}
+                                                            >
+                                                                <Eye size={18} />
+                                                            </a>
+                                                        )}
+                                                        {project.githubUrl && (
+                                                            <a
+                                                                href={project.githubUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="bg-gray-800 hover:bg-gray-700 text-white font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    logProjectClick(`${project.title} - GitHub View`);
+                                                                }}
+                                                            >
+                                                                <Github size={18} />
+                                                            </a>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            )}
-
-                                            {/* Error state with animated code icon */}
-                                            {loadState.error && !loadState.loading && (
-                                                <div className="absolute inset-0 w-full h-full bg-gray-800/50 flex items-center justify-center z-10">
-                                                    <motion.div
-                                                        variants={codeIconVariants}
-                                                        animate="animate"
-                                                        className="text-gray-500"
-                                                    >
-                                                        <Code size={48} />
-                                                    </motion.div>
-                                                </div>
-                                            )}
-
-                                            {/* Actual image */}
-                                            <img
-                                                src={project.image}
-                                                alt={project.title}
-                                                className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${loadState.loading ? 'opacity-0' : 'opacity-100'
-                                                    }`}
-                                                onLoad={() => handleImageLoad(project.id)}
-                                                onError={() => handleImageError(project.id)}
-                                                loading="lazy"
-                                            />
-
-                                            {/* Overlay with action buttons */}
-                                            <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 flex items-end justify-center
-                                                ${isMobile
-                                                    ? (activeCard === project.id ? 'opacity-100' : 'opacity-0')
-                                                    : 'opacity-0 group-hover:opacity-100'
-                                                }`}>
-                                                <div className={`p-4 w-full flex justify-center gap-4 transition-transform duration-300
-                                                    ${isMobile
-                                                        ? (activeCard === project.id ? 'translate-y-0' : 'translate-y-10')
-                                                        : 'translate-y-10 group-hover:translate-y-0'
-                                                    }`}>
-                                                    {project.liveUrl && (
-                                                        <a
-                                                            href={project.liveUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="bg-green-500 hover:bg-green-600 text-black font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                logProjectClick(`${project.title} - Live View`);
-                                                            }}
-                                                        >
-                                                            <Eye size={18} />
-                                                        </a>
-                                                    )}
-                                                    {project.githubUrl && (
-                                                        <a
-                                                            href={project.githubUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="bg-gray-800 hover:bg-gray-700 text-white font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                logProjectClick(`${project.title} - GitHub View`);
-                                                            }}
-                                                        >
-                                                            <Github size={18} />
-                                                        </a>
-                                                    )}
-                                                </div>
                                             </div>
-                                        </div>
 
-                                        {/* Project details */}
-                                        <div className="p-6 flex-grow flex flex-col">
-                                            <h3 className="text-xl font-bold text-white mb-2 flex items-center">
-                                                {project.title}
-                                                {project.featured && (
-                                                    <span className="ml-2 px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
-                                                        Featured
-                                                    </span>
-                                                )}
-                                            </h3>
-                                            <p className="text-gray-300 text-sm mb-4 flex-grow">
-                                                {project.description}
-                                            </p>
-
-                                            {/* Technologies used */}
-                                            <div className="mt-4">
-                                                <div className="flex flex-wrap gap-2">
-                                                    {project.tools.map((tool, index) => (
-                                                        <span
-                                                            key={index}
-                                                            className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-md"
-                                                        >
-                                                            {tool}
+                                            {/* Project details */}
+                                            <div className="p-6 flex-grow flex flex-col">
+                                                <h3 className="text-xl font-bold text-white mb-2 flex items-center">
+                                                    {project.title}
+                                                    {project.featured && (
+                                                        <span className="ml-2 px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                                                            Featured
                                                         </span>
-                                                    ))}
+                                                    )}
+                                                </h3>
+                                                <p className="text-gray-300 text-sm mb-4 flex-grow">
+                                                    {project.description}
+                                                </p>
+
+                                                {/* Technologies used */}
+                                                <div className="mt-4">
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {project.tools.map((tool, index) => (
+                                                            <span
+                                                                key={index}
+                                                                className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-md"
+                                                            >
+                                                                {tool}
+                                                            </span>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })
+                                        </motion.div>
+                                    );
+                                })
                         )}
                     </motion.div>
                 </AnimatePresence>
-
-                {/* Show more button - hide while loading */}
-                {!isLoadingData && (
-                    <div className="mt-16 text-center">
-                        <a
-                            href="#"
-                            className="inline-flex items-center px-6 py-3 border-2 border-green-500/30 hover:border-green-500 text-green-400 hover:bg-green-500/10 rounded-lg font-medium transition-all duration-300"
-                        >
-                            <Layout size={18} className="mr-2" />
-                            View All Projects
-                        </a>
-                    </div>
-                )}
             </div>
         </section>
     );

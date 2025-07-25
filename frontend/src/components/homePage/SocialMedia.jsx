@@ -12,7 +12,7 @@ function SocialMedia() {
         {
             name: 'Facebook',
             icon: Facebook,
-            url: 'https://www.facebook.com/profile.php?id=61555692740524&mibextid=wwXIfr',
+            url: 'https://www.facebook.com/sathsarakumbukage',
             color: 'hover:bg-blue-600',
             bgColor: 'bg-blue-600'
         },

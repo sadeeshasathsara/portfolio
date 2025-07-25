@@ -1,21 +1,12 @@
 import axios from 'axios';
 import Project from '../models/Project.js'; // adjust the path as needed
 
-/**
- * Helper: fetch README content for a repo and extract image/gif URL (or '')
- */
 const getReadmeImageUrl = async (owner, repo, githubToken) => {
     try {
-        // Get repo info for default branch
         const repoInfo = await axios.get(`https://api.github.com/repos/${owner}/${repo}`, {
-            headers: {
-                Authorization: `Bearer ${githubToken}`,
-            },
+            headers: { Authorization: `Bearer ${githubToken}` },
         });
 
-        const defaultBranch = repoInfo.data.default_branch || 'main';
-
-        // Fetch raw README markdown
         const res = await axios.get(
             `https://api.github.com/repos/${owner}/${repo}/readme`,
             {
@@ -32,41 +23,28 @@ const getReadmeImageUrl = async (owner, repo, githubToken) => {
             return '';
         }
 
-        // Extract image URLs
         const urls = [];
         const imageRegexMarkdown = /!\[[^\]]*\]\((.*?)\)/g;
         const imageRegexHTML = /<img\s+[^>]*src=["']([^"']+)["'][^>]*>/g;
 
         let match;
+        while ((match = imageRegexMarkdown.exec(markdown)) !== null) urls.push(match[1]);
+        while ((match = imageRegexHTML.exec(markdown)) !== null) urls.push(match[1]);
 
-        // Markdown images
-        while ((match = imageRegexMarkdown.exec(markdown)) !== null) {
-            urls.push(match[1]);
-        }
-
-        // HTML <img> tags
-        while ((match = imageRegexHTML.exec(markdown)) !== null) {
-            urls.push(match[1]);
-        }
-
-        if (urls.length === 0) {
-            return '';
-        }
-
-        return urls;
-    } catch (error) {
-
+        return urls.length > 0 ? urls : '';
+    } catch {
         return '';
     }
 };
-/**
- * Fetches public GitHub repositories and saves them to MongoDB
- */
+
 export const fetchPublicGitHubRepos = async () => {
     try {
+        const githubToken = process.env.GITHUB_SECRET;
+        const yourGitHubUsername = process.env.GITHUB_USERNAME;
+
         const response = await axios.get("https://api.github.com/user/repos", {
             headers: {
-                Authorization: `Bearer ${process.env.GITHUB_SECRET}`,
+                Authorization: `Bearer ${githubToken}`,
                 Accept: "application/vnd.github+json",
             },
             params: {
@@ -75,26 +53,46 @@ export const fetchPublicGitHubRepos = async () => {
             },
         });
 
-
         if (!Array.isArray(response.data)) {
             console.error("❌ Unexpected GitHub API response:", response.data);
             return;
         }
 
         for (const repo of response.data) {
-            const image = await getReadmeImageUrl(repo.owner.login, repo.name, process.env.GITHUB_SECRET);
+            if (repo.owner.login !== yourGitHubUsername) {
+                console.log(`⏩ Skipping repo not owned by you: ${repo.full_name}`);
+                continue;
+            }
+
+            const image = await getReadmeImageUrl(repo.owner.login, repo.name, githubToken);
+
+            const existingProject = await Project.findOne({ githubUrl: repo.html_url });
 
             const projectData = {
                 title: repo.name || "Untitled",
                 description: repo.description || "No description provided.",
-                image: image[0] || '',
                 githubUrl: repo.html_url || '',
-                liveUrl: '',
                 tools: repo.language ? [repo.language] : [],
-                tags: [],
             };
 
+            // Preserve existing image if it exists and is not empty
+            if (existingProject && existingProject.image && existingProject.image.trim() !== '') {
+                projectData.image = existingProject.image;
+            } else {
+                projectData.image = image[0] || '';
+            }
 
+            if (existingProject) {
+                projectData.tags = existingProject.tags || [];
+                projectData.featured = existingProject.featured || false;
+                projectData.liveUrl = existingProject.liveUrl || '';
+                projectData.display = typeof existingProject.display !== 'undefined' ? existingProject.display : true;
+            } else {
+                projectData.tags = [];
+                projectData.featured = false;
+                projectData.liveUrl = '';
+                projectData.display = true;
+            }
 
             await Project.findOneAndUpdate(
                 { githubUrl: repo.html_url },
