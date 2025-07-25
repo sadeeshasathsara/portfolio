@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Loader2, Code, User, Mail, Briefcase } from 'lucide-react';
 import { createVisit } from '../tools/ActivityRecorder';
+import About from '../components/homePage/About';
 
 // Lazy load components
 const Navbar = lazy(() => import('../components/homePage/Navbar'));
@@ -246,7 +247,7 @@ function Home() {
                         description="Fetching personal information..."
                     />
                 }>
-
+                    <About />
                 </Suspense>
             </div>
 
