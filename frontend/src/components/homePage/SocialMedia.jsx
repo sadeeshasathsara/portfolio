@@ -12,35 +12,35 @@ function SocialMedia() {
         {
             name: 'Facebook',
             icon: Facebook,
-            url: 'https://facebook.com/yourprofile',
+            url: 'https://www.facebook.com/profile.php?id=61555692740524&mibextid=wwXIfr',
             color: 'hover:bg-blue-600',
             bgColor: 'bg-blue-600'
         },
         {
             name: 'Instagram',
             icon: Instagram,
-            url: 'https://instagram.com/yourprofile',
+            url: 'https://instagram.com/_xadeee_',
             color: 'hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600',
             bgColor: 'bg-gradient-to-br from-purple-600 to-pink-600'
         },
         {
             name: 'LinkedIn',
             icon: Linkedin,
-            url: 'https://linkedin.com/in/yourprofile',
+            url: 'https://linkedin.com/in/sadeeshasathsara',
             color: 'hover:bg-blue-700',
             bgColor: 'bg-blue-700'
         },
         {
             name: 'GitHub',
             icon: Github,
-            url: 'https://github.com/yourprofile',
+            url: 'https://github.com/sadeeshasathsara',
             color: 'hover:bg-gray-800',
             bgColor: 'bg-gray-800'
         },
         {
             name: 'WhatsApp',
             icon: MessageCircle,
-            url: 'https://wa.me/1234567890',
+            url: 'https://wa.me/94707722924',
             color: 'hover:bg-green-600',
             bgColor: 'bg-green-600'
         }

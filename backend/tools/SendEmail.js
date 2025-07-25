@@ -28,4 +28,22 @@ const SendEmail = async (to, subject, body) => {
     }
 };
 
+// Exportable function
+export const SendEmailToMe = async (from, subject, body) => {
+    const mailOptions = {
+        from: from,
+        to: `"Sathsara K. " <${process.env.EMAIL_USER}>`,
+        subject: subject,
+        html: body,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        return { success: true, info };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return { success: false, error };
+    }
+};
+
 export default SendEmail;

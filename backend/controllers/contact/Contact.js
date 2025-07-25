@@ -1,4 +1,4 @@
-import SendEmail from '../../tools/SendEmail.js';
+import SendEmail, { SendEmailToMe } from '../../tools/SendEmail.js';
 import ContactMessage from '../../models/ContactModel.js';
 
 const Contact = async (req, res) => {
@@ -18,7 +18,7 @@ const Contact = async (req, res) => {
     `;
 
     // Try to send the email
-    const result = await SendEmail(email, `Contact Form: ${subject}`, emailBody);
+    const result = await SendEmailToMe(email, `Contact Form: ${subject}`, emailBody);
 
     // Save the message to the DB with the correct field names
     try {

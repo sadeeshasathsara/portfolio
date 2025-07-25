@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { logDownload } from '../../tools/ActivityRecorder';
+import axios from 'axios';
 
 function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -15,6 +16,15 @@ function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const handleCvClick = async () => {
+        try {
+            await axios.get('https://drive.google.com/uc?export=download&id=1u0iSHj4aPefoQNRgj5DOKfZGqvZhlful')
+        } catch (e) {
+            console.log(e);
+
+        }
+    }
 
     // Detect visible section
     useEffect(() => {
@@ -97,7 +107,7 @@ function Navbar() {
                             {tab.name}
                         </a>
                     ))}
-                    <button className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
+                    <button onClick={handleCvClick} className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
                         Download CV
                     </button>
                 </nav>

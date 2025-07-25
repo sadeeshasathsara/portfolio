@@ -69,16 +69,21 @@ function HeroLeft() {
                 className="flex gap-6 mt-10 justify-center md:justify-start"
                 variants={itemVariants}
             >
-                {['github', 'linkedin', 'twitter', 'dribbble'].map(platform => (
+                {[
+                    { platform: 'github', url: 'https://github.com/sadeeshasathsara' },
+                    { platform: 'linkedin', url: 'https://www.linkedin.com/in/sadeeshasathsara' },
+                    { platform: 'twitter', url: 'https://twitter.com/' },
+                    { platform: 'dribbble', url: 'https://dribbble.com/' },
+                ].map(({ platform, url }) => (
                     <a
                         key={platform}
-                        href={`https://${platform}.com`}
-                        className="text-white/60 hover:text-green-400 transition-colors duration-300"
+                        href={url}
+                        className="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center text-white/70 hover:bg-green-500/20 hover:text-green-400 transition-all duration-300"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         <span className="sr-only">{platform}</span>
-                        <i className={`fab fa-${platform} text-xl`}></i>
+                        <i className={`fab fa-${platform} text-lg`}></i>
                     </a>
                 ))}
             </motion.div>
