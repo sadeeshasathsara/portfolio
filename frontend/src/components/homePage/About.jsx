@@ -54,7 +54,7 @@ function About() {
                                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-500/20 mb-4">
                                     <Laptop className="h-6 w-6 text-green-400" />
                                 </div>
-                                <h4 className="text-3xl font-bold text-white mb-1">15+</h4>
+                                <h4 className="text-3xl font-bold text-white mb-1">10+</h4>
                                 <p className="text-gray-400 text-sm">Technologies</p>
                             </div>
 
@@ -102,7 +102,7 @@ function About() {
                                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 mb-3">
                                     <Code className="h-5 w-5 text-blue-400" />
                                 </div>
-                                <h4 className="text-2xl font-bold text-white mb-1">50+</h4>
+                                <h4 className="text-2xl font-bold text-white mb-1">6</h4>
                                 <p className="text-gray-400 text-xs">Projects Completed</p>
                             </div>
 
@@ -111,7 +111,7 @@ function About() {
                                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500/20 mb-3">
                                     <Laptop className="h-5 w-5 text-green-400" />
                                 </div>
-                                <h4 className="text-2xl font-bold text-white mb-1">15+</h4>
+                                <h4 className="text-2xl font-bold text-white mb-1">10+</h4>
                                 <p className="text-gray-400 text-xs">Technologies</p>
                             </div>
 

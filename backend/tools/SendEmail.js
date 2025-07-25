@@ -29,7 +29,7 @@ const SendEmail = async (to, subject, body) => {
 };
 
 // Exportable function
-export const SendEmailToMe = async (from, subject, body) => {
+const SendEmailToMe = async (from, subject, body) => {
     const mailOptions = {
         from: from,
         to: `"Sathsara K. " <${process.env.EMAIL_USER}>`,
