@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { logDownload } from '../../tools/ActivityRecorder';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -17,13 +18,10 @@ function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const handleCvClick = async () => {
-        try {
-            await axios.get('https://drive.google.com/uc?export=download&id=1u0iSHj4aPefoQNRgj5DOKfZGqvZhlful')
-        } catch (e) {
-            console.log(e);
+    const navigate = useNavigate()
 
-        }
+    const handleCvClick = () => {
+        navigate('https://drive.google.com/uc?export=download&id=1u0iSHj4aPefoQNRgj5DOKfZGqvZhlful')
     }
 
     // Detect visible section
@@ -56,10 +54,6 @@ function Navbar() {
         { name: 'Projects', path: '#projects' },
         { name: 'Contact', path: '#contact' },
     ];
-
-    const downloadCv = () => {
-        logDownload('Sathsara_K_CV.pdf');
-    }
 
     return (
         <header className={`transition-all duration-300 ${isScrolled ? 'bg-[#101828] shadow-sm fixed top-0 left-0 w-full z-50' : ''}`}>

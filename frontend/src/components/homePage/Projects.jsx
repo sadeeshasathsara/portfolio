@@ -97,14 +97,15 @@ function Projects() {
         visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }
     };
 
-    // Loading shimmer animation
+    // Fixed shimmer animation with proper keyframes
     const shimmerVariants = {
         animate: {
-            backgroundPosition: ['200% 0', '-200% 0'],
+            x: ['-100%', '100%'],
             transition: {
                 duration: 1.5,
                 ease: 'linear',
-                repeat: Infinity
+                repeat: Infinity,
+                repeatDelay: 0.5
             }
         }
     };
@@ -147,10 +148,9 @@ function Projects() {
     }, [isMobile, activeCard]);
 
     return (
-        <section id="projects" className="relative py-20 overflow-hidden">
+        <section id="projects" className="relative py-20 overflow-hidden bg-black min-h-screen">
             {/* Background elements */}
             <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black z-0"></div>
-            <div className="absolute inset-0 opacity-5 bg-[url('/assets/grid-pattern.svg')] z-0"></div>
             <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl z-0"></div>
             <div className="absolute bottom-1/4 right-1/3 w-48 h-48 rounded-full bg-green-500/10 blur-3xl z-0"></div>
 
@@ -205,16 +205,19 @@ function Projects() {
                                             handleCardClick(project.id);
                                         }}
                                     >
-                                        {/* Loading shimmer effect */}
+                                        {/* Enhanced shimmer loading effect */}
                                         {loadState.loading && (
-                                            <motion.div
-                                                className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"
-                                                style={{
-                                                    backgroundSize: '200% 100%'
-                                                }}
-                                                variants={shimmerVariants}
-                                                animate="animate"
-                                            />
+                                            <div className="w-full h-full bg-gray-800 relative overflow-hidden">
+                                                <motion.div
+                                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/40 to-transparent"
+                                                    variants={shimmerVariants}
+                                                    animate="animate"
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%'
+                                                    }}
+                                                />
+                                            </div>
                                         )}
 
                                         {/* Error state with animated code icon */}
