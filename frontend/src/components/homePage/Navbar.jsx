@@ -74,7 +74,7 @@ function Navbar() {
                             {tab.name}
                         </a>
                     ))}
-                    <button onClick={downloadCv} className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
+                    <button onClick={handleCvClick} className="border border-highlight rounded-md px-4 py-2 text-white hover:bg-highlight hover:text-black m-plus-bold">
                         Download CV
                     </button>
                 </nav>
