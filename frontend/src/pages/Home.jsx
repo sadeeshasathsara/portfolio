@@ -246,7 +246,7 @@ function Home() {
                         description="Fetching personal information..."
                     />
                 }>
-                    <About />
+
                 </Suspense>
             </div>
 
