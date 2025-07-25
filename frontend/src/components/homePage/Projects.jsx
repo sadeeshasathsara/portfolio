@@ -320,7 +320,7 @@ function Projects() {
 
                                                 {/* Error state with animated code icon */}
                                                 {(loadState.error && !loadState.loading) || !project.image || project.image.trim() === '' ? (
-                                                    <div className="absolute inset-0 w-full h-full bg-gray-800/50 flex items-center justify-center z-10">
+                                                    <div className="absolute inset-0 w-full h-full bg-[#1a2432] flex items-center justify-center z-10">
                                                         <motion.div
                                                             variants={codeIconVariants}
                                                             animate="animate"
