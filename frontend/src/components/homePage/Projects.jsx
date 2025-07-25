@@ -35,7 +35,7 @@ function Projects() {
                 setProjects(response);
                 setVisibleProjects(response);
 
-                // Initialize loading states for all projects
+                // Initialize loading states for all projects - ensure they start as loading
                 const initialLoadStates = {};
                 response.forEach(project => {
                     initialLoadStates[project.id] = { loading: true, error: false };
@@ -48,6 +48,18 @@ function Projects() {
             }
         })()
     }, []);
+
+    // Reset image loading states when visible projects change (for filtering)
+    useEffect(() => {
+        if (visibleProjects.length > 0) {
+            const resetLoadStates = {};
+            visibleProjects.forEach(project => {
+                // Keep existing state if image was already loaded, otherwise set to loading
+                resetLoadStates[project.id] = imageLoadStates[project.id] || { loading: true, error: false };
+            });
+            setImageLoadStates(resetLoadStates);
+        }
+    }, [visibleProjects]);
 
     // Filter projects
     useEffect(() => {
@@ -70,18 +82,23 @@ function Projects() {
 
     // Handle image load success
     const handleImageLoad = (projectId) => {
-        setImageLoadStates(prev => ({
-            ...prev,
-            [projectId]: { loading: false, error: false }
-        }));
+        // Add a small delay to ensure shimmer is visible
+        setTimeout(() => {
+            setImageLoadStates(prev => ({
+                ...prev,
+                [projectId]: { loading: false, error: false }
+            }));
+        }, 500); // Minimum shimmer display time
     };
 
     // Handle image load error
     const handleImageError = (projectId) => {
-        setImageLoadStates(prev => ({
-            ...prev,
-            [projectId]: { loading: false, error: true }
-        }));
+        setTimeout(() => {
+            setImageLoadStates(prev => ({
+                ...prev,
+                [projectId]: { loading: false, error: true }
+            }));
+        }, 500);
     };
 
     // Animation variants
@@ -278,7 +295,7 @@ function Projects() {
                                     >
                                         {/* Project image */}
                                         <div
-                                            className="relative overflow-hidden cursor-pointer aspect-video"
+                                            className="relative overflow-hidden cursor-pointer aspect-video bg-gray-800"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleCardClick(project.id);
@@ -286,18 +303,22 @@ function Projects() {
                                         >
                                             {/* Enhanced shimmer loading effect for images */}
                                             {loadState.loading && (
-                                                <div className="w-full h-full bg-gray-800 relative overflow-hidden">
+                                                <div className="absolute inset-0 w-full h-full bg-gray-800 overflow-hidden z-10">
                                                     <motion.div
-                                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/40 to-transparent"
+                                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-600/50 to-transparent"
                                                         variants={shimmerVariants}
                                                         animate="animate"
                                                     />
+                                                    {/* Additional shimmer bars for more visible effect */}
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="w-16 h-16 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin"></div>
+                                                    </div>
                                                 </div>
                                             )}
 
                                             {/* Error state with animated code icon */}
-                                            {loadState.error && (
-                                                <div className="w-full h-full bg-gray-800/50 flex items-center justify-center">
+                                            {loadState.error && !loadState.loading && (
+                                                <div className="absolute inset-0 w-full h-full bg-gray-800/50 flex items-center justify-center z-10">
                                                     <motion.div
                                                         variants={codeIconVariants}
                                                         animate="animate"
@@ -312,10 +333,11 @@ function Projects() {
                                             <img
                                                 src={project.image}
                                                 alt={project.title}
-                                                className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${loadState.loading || loadState.error ? 'opacity-0 absolute' : 'opacity-100'
+                                                className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${loadState.loading ? 'opacity-0' : 'opacity-100'
                                                     }`}
                                                 onLoad={() => handleImageLoad(project.id)}
                                                 onError={() => handleImageError(project.id)}
+                                                loading="lazy"
                                             />
 
                                             {/* Overlay with action buttons */}
