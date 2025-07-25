@@ -1,13 +1,12 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Loader2, Code, User, Mail, Briefcase } from 'lucide-react';
 import { createVisit } from '../tools/ActivityRecorder';
-import About from '../components/homePage/About';
 
 // Lazy load components
 const Navbar = lazy(() => import('../components/homePage/Navbar'));
 const HeroLeft = lazy(() => import('../components/homePage/HeroLeft'));
 const HeroRight = lazy(() => import('../components/homePage/HeroRight'));
-
+const About = lazy(() => import('../components/homePage/About'));
 const Projects = lazy(() => import('../components/homePage/Projects'));
 const Contact = lazy(() => import('../components/homePage/Contact'));
 const SocialMedia = lazy(() => import('../components/homePage/SocialMedia'));

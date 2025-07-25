@@ -115,22 +115,14 @@ function About() {
                                 <p className="text-gray-400 text-xs">Technologies</p>
                             </div>
 
-                            {/* Skill item 3 */}
-                            <div className="text-center p-2">
-                                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 mb-3">
-                                    <Server className="h-5 w-5 text-purple-400" />
-                                </div>
-                                <h4 className="text-2xl font-bold text-white mb-1">5+ yrs</h4>
-                                <p className="text-gray-400 text-xs">Experience</p>
-                            </div>
-
                             {/* Skill item 4 */}
-                            <div className="text-center p-2">
-                                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 mb-3">
-                                    <Zap className="h-5 w-5 text-orange-400" />
+                            <div className="text-center p-4 col-span-2">
+                                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/20 mb-4">
+                                    <Zap className="h-6 w-6 text-orange-400" />
                                 </div>
-                                <h4 className="text-2xl font-bold text-white mb-1">100%</h4>
-                                <p className="text-gray-400 text-xs">Client Satisfaction</p>
+                                <h4 className="text-3xl font-bold text-white mb-1">Undergraduate at SLIIT</h4>
+                                <p className="text-gray-400 text-sm">Following BSc (Hons) in Information Technology
+                                    Specialising in Software Engineering</p>
                             </div>
                         </div>
                     </div>
