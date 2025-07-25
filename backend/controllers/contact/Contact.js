@@ -9,7 +9,7 @@ const Contact = async (req, res) => {
     }
 
     const senderCopy = `
-        <h3>New Contact Form Submission</h3>
+        <h3>Email sent successfully to Sathsara K.</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Subject:</strong> ${subject}</p>
@@ -18,7 +18,7 @@ const Contact = async (req, res) => {
     `;
 
     const emailBody = `
-        <h3>Email sent successfully to Sathsara K.</h3>
+        <h3>New Contact Form Submission</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Subject:</strong> ${subject}</p>
