@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Globe, Github, Star, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Globe, Github, Star, Upload, Image as ImageIcon, Loader2, Trash2 } from 'lucide-react';
 import ProjectClient from '../../tools/ProjectClient';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,13 +15,14 @@ function ProjectModal({
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        image: null,
-        imagePreview: '',
+        images: [],
+        imagePreviews: [],
         tags: '',
         tools: '',
         liveUrl: '',
         githubUrl: '',
-        featured: false
+        featured: false,
+        hidden: false
     });
 
     const [loading, setLoading] = useState(false);
@@ -36,56 +37,106 @@ function ProjectModal({
     };
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
+        const files = Array.from(e.target.files);
+
+        if (files.length === 0) return;
+
+        // Check if adding these files would exceed the limit (e.g., 5 images max)
+        const maxImages = 5;
+        const totalImages = formData.images.length + files.length;
+
+        if (totalImages > maxImages) {
+            setError(`Maximum ${maxImages} images allowed. You're trying to add ${files.length} more to your existing ${formData.images.length} images.`);
+            return;
+        }
+
+        // Validate files
+        const validFiles = [];
+        const newPreviews = [];
+
+        for (const file of files) {
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                setError('Please select a valid image file');
-                return;
+                setError(`File "${file.name}" is not a valid image file`);
+                continue;
             }
 
-            // Validate file size (5MB limit)
+            // Validate file size (5MB limit per file)
             if (file.size > 5 * 1024 * 1024) {
-                setError('Image size must be less than 5MB');
-                return;
+                setError(`Image "${file.name}" must be less than 5MB`);
+                continue;
             }
 
-            setError(null);
-            setFormData(prev => ({
-                ...prev,
-                image: file,
-                imagePreview: URL.createObjectURL(file)
-            }));
+            validFiles.push(file);
+            newPreviews.push({
+                file,
+                url: URL.createObjectURL(file),
+                id: Date.now() + Math.random() // Simple unique ID
+            });
         }
-    };
 
-    const removeImage = () => {
-        if (formData.imagePreview) {
-            URL.revokeObjectURL(formData.imagePreview);
-        }
+        if (validFiles.length === 0) return;
+
+        setError(null);
         setFormData(prev => ({
             ...prev,
-            image: null,
-            imagePreview: ''
+            images: [...prev.images, ...validFiles],
+            imagePreviews: [...prev.imagePreviews, ...newPreviews]
+        }));
+
+        // Reset the input
+        e.target.value = '';
+    };
+
+    const removeImage = (index) => {
+        const preview = formData.imagePreviews[index];
+        if (preview && preview.url) {
+            URL.revokeObjectURL(preview.url);
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+            imagePreviews: prev.imagePreviews.filter((_, i) => i !== index)
+        }));
+    };
+
+    const removeAllImages = () => {
+        // Cleanup object URLs
+        formData.imagePreviews.forEach(preview => {
+            if (preview.url) {
+                URL.revokeObjectURL(preview.url);
+            }
+        });
+
+        setFormData(prev => ({
+            ...prev,
+            images: [],
+            imagePreviews: []
         }));
     };
 
     const closeModal = () => {
-        if (formData.imagePreview) {
-            URL.revokeObjectURL(formData.imagePreview);
-        }
+        // Cleanup object URLs
+        formData.imagePreviews.forEach(preview => {
+            if (preview.url) {
+                URL.revokeObjectURL(preview.url);
+            }
+        });
+
         setShowModal(false);
         setEditingProject(null);
         setFormData({
             title: '',
             description: '',
-            image: null,
-            imagePreview: '',
+            images: [],
+            imagePreviews: [],
             tags: '',
             tools: '',
             liveUrl: '',
             githubUrl: '',
-            featured: false
+            featured: false,
+            hidden: false
         });
         setError(null);
         setLoading(false);
@@ -108,12 +159,13 @@ function ProjectModal({
                 tools: formData.tools.split(',').map(tool => tool.trim()).filter(tool => tool),
                 liveUrl: formData.liveUrl,
                 githubUrl: formData.githubUrl,
-                featured: formData.featured
+                featured: formData.featured,
+                hidden: formData.hidden
             };
 
-            // Add image if provided
-            if (formData.image) {
-                projectData.image = formData.image;
+            // Add images if provided
+            if (formData.images.length > 0) {
+                projectData.images = formData.images;
             }
 
             if (editingProject) {
@@ -140,42 +192,50 @@ function ProjectModal({
     // Update form data when editing project changes
     React.useEffect(() => {
         if (editingProject) {
+            // Handle existing images from server
+            const existingImages = editingProject.images || [editingProject.image].filter(Boolean);
+            const existingPreviews = existingImages.map((img, index) => ({
+                url: `${BACKEND_URL}${img.replace(/\\/g, '/')}`,
+                isExisting: true,
+                id: `existing-${index}`
+            }));
+
             setFormData({
                 title: editingProject.title || '',
                 description: editingProject.description || '',
-                image: null,
-                imagePreview: editingProject.image || '',
+                images: [],
+                imagePreviews: existingPreviews,
                 tags: (editingProject.tags || []).join(', '),
                 tools: (editingProject.tools || []).join(', '),
                 liveUrl: editingProject.liveUrl || '',
                 githubUrl: editingProject.githubUrl || '',
-                featured: editingProject.featured || false
+                featured: editingProject.featured || false,
+                hidden: editingProject.hidden || false
             });
         } else {
             setFormData({
                 title: '',
                 description: '',
-                image: null,
-                imagePreview: '',
+                images: [],
+                imagePreviews: [],
                 tags: '',
                 tools: '',
                 liveUrl: '',
                 githubUrl: '',
-                featured: false
+                featured: false,
+                hidden: false
             });
         }
         setError(null);
     }, [editingProject]);
 
     if (!showModal) return null;
-    console.log(`${BACKEND_URL}${formData.imagePreview.replace(/\\/g, '/')}`);
-
 
     return (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <ToastContainer />
             <div
-                className="w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl transform transition-all duration-300 scale-100 relative"
+                className="w-full max-w-5xl max-h-[90vh] rounded-3xl shadow-2xl transform transition-all duration-300 scale-100 relative"
                 style={{ backgroundColor: '#121a27' }}
             >
                 {/* Custom scrollbar styles */}
@@ -241,12 +301,13 @@ function ProjectModal({
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-300 mb-3">
-                                    Project Image
+                                    Project Images (Max 5)
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        multiple
                                         onChange={handleImageChange}
                                         disabled={loading}
                                         className="hidden"
@@ -258,34 +319,60 @@ function ProjectModal({
                                     >
                                         <Upload className="w-5 h-5 text-gray-400" />
                                         <span className="text-gray-400">
-                                            {formData.image ? formData.image.name : 'Choose image file'}
+                                            {formData.images.length > 0
+                                                ? `${formData.images.length} image(s) selected`
+                                                : 'Choose multiple images'}
                                         </span>
                                     </label>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1">Max size: 5MB. Supported: JPG, PNG, GIF</p>
+                                <div className="flex justify-between items-center mt-1">
+                                    <p className="text-xs text-gray-400">Max size: 5MB per image. Supported: JPG, PNG, GIF</p>
+                                    <span className="text-xs text-gray-400">
+                                        {formData.imagePreviews.length}/5 images
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Image Preview */}
-                        {formData.imagePreview && (
-                            <div className="relative">
-                                <label className="block text-sm font-semibold text-gray-300 mb-3">
-                                    Image Preview
-                                </label>
-                                <div className="relative inline-block">
-                                    <img
-                                        src={`${BACKEND_URL}${formData.imagePreview.replace(/\\/g, '/')}`}
-                                        alt="Preview"
-                                        className="w-full max-w-md h-48 object-cover rounded-xl border border-gray-600/50"
-                                    />
+                        {/* Images Preview Grid */}
+                        {formData.imagePreviews.length > 0 && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-sm font-semibold text-gray-300">
+                                        Image Previews ({formData.imagePreviews.length})
+                                    </label>
                                     <button
                                         type="button"
-                                        onClick={removeImage}
+                                        onClick={removeAllImages}
                                         disabled={loading}
-                                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors disabled:opacity-50"
+                                        className="text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
                                     >
-                                        <X className="w-4 h-4" />
+                                        Remove All
                                     </button>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {formData.imagePreviews.map((preview, index) => (
+                                        <div key={preview.id || index} className="relative group">
+                                            <img
+                                                src={preview.url}
+                                                alt={`Preview ${index + 1}`}
+                                                className="w-full h-32 object-cover rounded-lg border border-gray-600/50"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                disabled={loading}
+                                                className="absolute -top-2 -right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                            {preview.isExisting && (
+                                                <div className="absolute bottom-2 left-2 px-2 py-1 bg-blue-600/80 text-xs text-white rounded">
+                                                    Current
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -400,6 +487,28 @@ function ProjectModal({
                                 </label>
                             </div>
                             <p className="text-sm text-gray-400 mt-2 ml-8">Featured projects will be highlighted with a star badge</p>
+                        </div>
+
+                        <div className="bg-orange-900/20 border border-orange-500/30 rounded-xl p-6">
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    name="hidden"
+                                    id="hidden"
+                                    checked={formData.hidden}
+                                    onChange={handleInputChange}
+                                    disabled={loading}
+                                    className="w-5 h-5 text-orange-600 border-gray-600 rounded focus:ring-orange-500 bg-gray-700 disabled:opacity-50"
+                                />
+                                <label htmlFor="hidden" className="ml-3 flex items-center text-gray-300 font-medium">
+                                    <svg className="w-5 h-5 mr-2 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                                    </svg>
+                                    Hide Project from Public View
+                                </label>
+                            </div>
+                            <p className="text-sm text-gray-400 mt-2 ml-8">Hidden projects will not appear in your public portfolio but remain accessible to you</p>
                         </div>
 
                         <div className="flex gap-4 pt-8">

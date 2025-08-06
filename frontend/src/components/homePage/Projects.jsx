@@ -1,8 +1,180 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Github, Eye, Code, Layout } from 'lucide-react';
+import { ExternalLink, Github, Eye, Code, Layout, Images, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { logProjectClick } from '../../tools/ActivityRecorder';
 import ProjectClient from '../../tools/ProjectClient';
+import { BACKEND_URL } from '../../tools/Tools';
+
+// Gallery Modal Component
+const GalleryModal = ({ isOpen, onClose, images, projectTitle, backendUrl }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [imageLoadStates, setImageLoadStates] = useState({});
+
+    // Reset to first image when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setCurrentIndex(0);
+            // Initialize loading states for gallery images
+            const loadStates = {};
+            images.forEach((_, index) => {
+                loadStates[index] = { loading: true, error: false };
+            });
+            setImageLoadStates(loadStates);
+        }
+    }, [isOpen, images]);
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowLeft') {
+                goToPrevious();
+            } else if (e.key === 'ArrowRight') {
+                goToNext();
+            } else if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, currentIndex, images.length]);
+
+    const goToNext = () => {
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+    };
+
+    const goToPrevious = () => {
+        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
+    const handleImageLoad = (index) => {
+        setImageLoadStates(prev => ({
+            ...prev,
+            [index]: { loading: false, error: false }
+        }));
+    };
+
+    const handleImageError = (index) => {
+        setImageLoadStates(prev => ({
+            ...prev,
+            [index]: { loading: false, error: true }
+        }));
+    };
+
+    if (!isOpen || !images || images.length === 0) return null;
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={onClose}
+            >
+                {/* Modal Content */}
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    className="relative max-w-4xl max-h-none w-full bg-gray-800 rounded-xl overflow-hidden flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
+                        <h3 className="text-xl font-bold text-white">{projectTitle} - Gallery</h3>
+                        <div className="flex items-center gap-4">
+                            <span className="text-gray-400 text-sm">
+                                {currentIndex + 1} of {images.length}
+                            </span>
+                            <button
+                                onClick={onClose}
+                                className="text-gray-400 hover:text-white transition-colors p-1"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Image Container - Fixed height for professional layout */}
+                    <div className="relative h-[60vh] bg-gray-900">
+                        {/* Loading shimmer */}
+                        {imageLoadStates[currentIndex]?.loading && (
+                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                                <div className="w-16 h-16 border-2 border-gray-600 border-t-gray-400 rounded-full animate-spin"></div>
+                            </div>
+                        )}
+
+                        {/* Error state */}
+                        {imageLoadStates[currentIndex]?.error && !imageLoadStates[currentIndex]?.loading && (
+                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                                <div className="text-center">
+                                    <Code size={48} className="text-gray-500 mx-auto mb-2" />
+                                    <p className="text-gray-400">Failed to load image</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Current Image */}
+                        <img
+                            src={`${backendUrl}/up/project/${images[currentIndex]}`}
+                            alt={`${projectTitle} gallery image ${currentIndex + 1}`}
+                            className={`w-full h-full object-contain transition-opacity duration-300 ${imageLoadStates[currentIndex]?.loading ? 'opacity-0' : 'opacity-100'
+                                }`}
+                            onLoad={() => handleImageLoad(currentIndex)}
+                            onError={() => handleImageError(currentIndex)}
+                        />
+
+                        {/* Navigation Arrows */}
+                        {images.length > 1 && (
+                            <>
+                                <button
+                                    onClick={goToPrevious}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 hover:scale-110"
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+                                <button
+                                    onClick={goToNext}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 hover:scale-110"
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Thumbnails - Fixed at bottom */}
+                    {images.length > 1 && (
+                        <div className="bg-gray-700 p-3 border-t border-gray-600 flex-shrink-0">
+                            <div className="flex gap-2 overflow-x-auto">
+                                {images.map((image, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentIndex(index)}
+                                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${index === currentIndex
+                                            ? 'border-green-500'
+                                            : 'border-gray-600 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <img
+                                            src={`${backendUrl}/up/project/${image}`}
+                                            alt={`Thumbnail ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+    );
+};
 
 function Projects() {
     const [filter, setFilter] = useState('all');
@@ -13,6 +185,7 @@ function Projects() {
     const [isMobile, setIsMobile] = useState(false);
     const [imageLoadStates, setImageLoadStates] = useState({});
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [galleryModal, setGalleryModal] = useState({ isOpen: false, images: [], projectTitle: '' });
 
     // Detect if device is mobile/touch
     useEffect(() => {
@@ -99,6 +272,23 @@ function Projects() {
                 [projectId]: { loading: false, error: true }
             }));
         }, 500);
+    };
+
+    // Handle gallery modal
+    const openGallery = (project) => {
+        console.log('Opening gallery for project:', project.title, 'Gallery:', project.gallery); // Debug log
+        if (project.gallery && Array.isArray(project.gallery) && project.gallery.length > 0) {
+            setGalleryModal({
+                isOpen: true,
+                images: project.gallery,
+                projectTitle: project.title
+            });
+            logProjectClick(`${project.title} - Gallery View`);
+        }
+    };
+
+    const closeGallery = () => {
+        setGalleryModal({ isOpen: false, images: [], projectTitle: '' });
     };
 
     // Animation variants
@@ -285,7 +475,10 @@ function Projects() {
                         ) : (
                             /* Show actual project cards */
                             (visibleProjects || [])
-                                .filter(project => project.display !== false)
+                                .filter(project =>
+                                    project.display !== false &&
+                                    project.status !== false
+                                )
                                 .map((project) => {
                                     const loadState = imageLoadStates[project.id] || { loading: true, error: false };
 
@@ -330,7 +523,6 @@ function Projects() {
                                                         </motion.div>
                                                     </div>
                                                 ) : null}
-
 
                                                 {/* Actual image */}
                                                 <img
@@ -382,6 +574,18 @@ function Projects() {
                                                                 <Github size={18} />
                                                             </a>
                                                         )}
+                                                        {project.gallery && Array.isArray(project.gallery) && project.gallery.length > 0 && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openGallery(project);
+                                                                }}
+                                                                className="bg-gray-800 cursor-pointer hover:bg-gray-700 text-white font-medium w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                                                                title="View Gallery"
+                                                            >
+                                                                <Images size={18} />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -421,6 +625,15 @@ function Projects() {
                     </motion.div>
                 </AnimatePresence>
             </div>
+
+            {/* Gallery Modal */}
+            <GalleryModal
+                isOpen={galleryModal.isOpen}
+                onClose={closeGallery}
+                images={galleryModal.images}
+                projectTitle={galleryModal.projectTitle}
+                backendUrl={BACKEND_URL}
+            />
         </section>
     );
 }

@@ -49,15 +49,22 @@ export const createProject = async (req, res) => {
 export const getProjects = async (req, res) => {
     try {
         const { search } = req.query;
-        let query = {};
 
+        // Always exclude projects with status === false
+        let query = { status: { $ne: false } };
+
+        // If there's a search query, use $text search AND exclude false status
         if (search) {
-            query = { $text: { $search: search } };
+            query = {
+                $and: [
+                    { $text: { $search: search } },
+                    { status: { $ne: false } }
+                ]
+            };
         }
 
         const projects = await Project.find(query).sort({ createdAt: -1 });
 
-        // Convert file paths to URLs
         const projectsWithUrls = projects.map(project => ({
             ...project.toObject(),
             imageUrl: project.image ? `/up/project/${path.basename(project.image)}` : null
@@ -68,6 +75,7 @@ export const getProjects = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Get a single project by ID
 export const getProjectById = async (req, res) => {

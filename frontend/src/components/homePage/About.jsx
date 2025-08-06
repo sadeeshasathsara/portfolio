@@ -80,7 +80,7 @@ function About() {
                         <h3 className="text-xl font-semibold text-white">My Journey</h3>
                         <p className="text-gray-300 text-sm">
                             I'm Sadeesha Sathsara, a full-stack developer with a passion for creating beautiful,
-                            functional web applications. My journey in tech began over 5 years ago, and I've been
+                            functional web applications. My journey in tech began over 2 years ago, and I've been
                             constantly expanding my skills and embracing new technologies.
                         </p>
                         <p className="text-gray-300 text-sm">
@@ -140,7 +140,7 @@ function About() {
                             </div>
                             <h4 className="text-xl font-semibold text-white mb-3">Frontend Development</h4>
                             <p className="text-gray-300 text-sm md:text-base">
-                                Crafting responsive, intuitive interfaces using React, Next.js, and Tailwind CSS to deliver
+                                Crafting responsive, intuitive interfaces using React, and Tailwind CSS to deliver
                                 seamless user experiences across all devices.
                             </p>
                         </div>
