@@ -36,6 +36,10 @@ app.use('/up/image', express.static('src/profilePics'));
 app.use('/up/cv', express.static('src/CVs'));
 app.use('/up/project', express.static('src/projectPics'));
 
+app.use("/", async (req, res) => {
+    return res.status(200).json({ message: "Server is live" });
+})
+
 const runGitHubSync = async () => {
     try {
         const repos = await fetchPublicGitHubRepos();
