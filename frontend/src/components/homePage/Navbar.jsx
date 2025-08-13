@@ -20,7 +20,7 @@ function Navbar() {
 
     const handleCvClick = () => {
         const link = document.createElement('a');
-        link.href = 'https://drive.google.com/uc?export=download&id=1u0iSHj4aPefoQNRgj5DOKfZGqvZhlful';
+        link.href = '';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
