@@ -40,38 +40,38 @@ router.post("/change-password", changePassword)
 router.post("/reset-password", ResetPassword)
 
 router.get('/profile', getProfile);
-router.put('/profile', saveProfile);
+router.put('/profile', verifyAuthToken, saveProfile);
 
-router.post('/project', createProject);
+router.post('/project', verifyAuthToken, createProject);
 router.get('/project', getProjects);
 router.get('/project/:id', getProjectById);
-router.put('/project/:id', updateProject);
-router.delete('/project/:id', deleteProject);
+router.put('/project/:id', verifyAuthToken, updateProject);
+router.delete('/project/:id', verifyAuthToken, deleteProject);
 
-router.post("/register", uploadImage.single("profilePicture"), createAccount)
+router.post("/register", verifyAuthToken, uploadImage.single("profilePicture"), createAccount)
 
-router.put("/settings/two-factor", updateTwoFactor);
-router.put("/settings/google-auth", updateGoogleAuth);
-router.put("/settings/password-auth", updatePasswordAuth);
-router.put("/settings/email-inquiry-notify", updateEmailInquiryNotify);
-router.put("/settings/user-visit-notify", updateUserVisitNotify);
-router.put("/settings/cv-download-notify", updateCvDownloadNotify);
-router.put("/settings/project-view-notify", updateProjectViewNotify);
+router.put("/settings/two-factor", verifyAuthToken, updateTwoFactor);
+router.put("/settings/google-auth", verifyAuthToken, updateGoogleAuth);
+router.put("/settings/password-auth", verifyAuthToken, updatePasswordAuth);
+router.put("/settings/email-inquiry-notify", verifyAuthToken, updateEmailInquiryNotify);
+router.put("/settings/user-visit-notify", verifyAuthToken, updateUserVisitNotify);
+router.put("/settings/cv-download-notify", verifyAuthToken, updateCvDownloadNotify);
+router.put("/settings/project-view-notify", verifyAuthToken, updateProjectViewNotify);
 
-router.post('/activity/visit', createVisit);
-router.post('/activity/log', logActivity);
-router.get('/activity/logs', readActivityLogs);
+router.post('/activity/visit', verifyAuthToken, createVisit);
+router.post('/activity/log', verifyAuthToken, logActivity);
+router.get('/activity/logs', verifyAuthToken, readActivityLogs);
 
 router.post('/contact', Contact)
-router.post('/contact/:id/reply', Reply)
-router.get('/contact/all', ReadMails)
-router.put('/contact/set-read', setRead)
+router.post('/contact/:id/reply', verifyAuthToken, Reply)
+router.get('/contact/all', verifyAuthToken, ReadMails)
+router.put('/contact/set-read', verifyAuthToken, setRead)
 
-router.post('/portfolio-visitors', increasePortfolioVisitors);
-router.post('/total-projects', increaseTotalProjects);
-router.post('/project-clicks', increaseProjectClicks);
-router.get('/counts', getCounts);
-router.get('/counts/insights', getCountsWithInsights);
+router.post('/portfolio-visitors', verifyAuthToken, increasePortfolioVisitors);
+router.post('/total-projects', verifyAuthToken, increaseTotalProjects);
+router.post('/project-clicks', verifyAuthToken, increaseProjectClicks);
+router.get('/counts', verifyAuthToken, getCounts);
+router.get('/counts/insights', verifyAuthToken, getCountsWithInsights);
 
 
 export default router
